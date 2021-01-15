@@ -1,6 +1,13 @@
 {
   "name": "fil-cosigner",
-  "version": "1.0.0",
+  "version": "0.1.0",
+  "author": "Fission",
+  "contributors": [
+    "Brooklyn Zelenka <brooklyn@fission.codes>",
+    "James Walker <james@fission.codes>",
+    "Daniel Holmgren <daniel@fission.codes>",
+    "Benjamin Bollen <ben@mosaiclabs.eu>"
+  ],
   "description": "Fission FileCoin Cosigner",
   "main": "index.js",
   "scripts": {
@@ -19,9 +26,7 @@
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "pino": "^6.8.0",
-    
     "swagger-express-middleware": "^4.0.2"
-    
   },
   "devDependencies": {
     "@types/chai": "^4.2.14",
@@ -42,6 +47,5 @@
     "supertest": "^6.0.1",
     "ts-node": "^9.1.1",
     "typescript": "^4.1.3"
-  },
-  "author": "Carmine DiMascio <cdimascio@gmail.com> (https://github.com/cdimascio)"
+  }
 }
