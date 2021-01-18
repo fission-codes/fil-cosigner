@@ -11,10 +11,10 @@ Get started developing...
 npm ci
 
 # run in development mode
-npm run dev
+yarn run dev
 
 # run tests
-npm run test
+yarn run test
 ```
 
 ---
