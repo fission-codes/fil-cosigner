@@ -2,5 +2,5 @@ import express from 'express';
 import controller from './controller';
 export default express
   .Router()
-  .post('/keypair', controller.createKeyPair)
-  .post('/message', controller.cosignMessage);
+  .post('/keypairs', controller.createKeyPair)
+  .post('/messages', controller.cosignMessage);

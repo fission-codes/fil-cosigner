@@ -1,0 +1,95 @@
+openapi: 3.0.0
+info:
+  title: Filecoin cosigner API
+  description: Securely sign Filecoin messages from the browser
+  version: 0.1.0
+
+# trying to follow OpenAPI 3.0.0 https://swagger.io/docs/specification
+
+# TODO: 1. is this information correct / desired paths
+# TODO: 2. does it mean something to specify an explicit server url
+#          if the architecture is user-centered on UCAN?
+#          so use relative URL for now.
+servers:
+  - url: /api/v0
+
+paths:
+  /filecoin/keypairs:
+    post:
+      summary: Create a new keypair for cosigning
+      description: Request the creation of a BLS key to be paired with user's BLS key.
+      security:
+      - ucanAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userOriginDid:
+                  type: string
+                userBlsPublicKey:
+                  type: string
+      responses:
+        '201':  # status code https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
+          description: Returns the paired BLS key.
+  /filecoin/messsages:
+    post:
+      summary: Cosign a message for Filecoin
+      description: Request a cosignature and optionally send to a network.
+      security:
+      - ucanAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SignedFilecoinMessage'
+      responses:
+        '201':
+          description: Returns the signature and paired signature for the message,\n
+            and optionally message receipt.
+
+components:
+  securitySchemas:
+    ucanAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT UCAN
+  schemas:
+    SignedFilecoinMessage: # https://spec.filecoin.io/systems/filecoin_vm/message/
+      properties: # TODO: improve and expand, require all expect sendToNetwork
+        userSignature:
+          type: string
+        userBlsPublicKey:
+          type: string
+        userOriginDid:
+          type: string
+        network:
+          type: string # TODO: make enum 'filecoin/mainnet', 'filecoin/testnet'
+        sendToNetwork:
+          type: boolean # default true. if false only return signature
+        messageVersion:
+          type: integer
+        messageTo:
+          type: string
+        messageFrom:
+          type: string
+        messageCallSeqNum:
+          type: integer # uint64
+        messageValue:
+          type: string # BigInt
+        messageGasPrice:
+          type: string # BigInt
+        messageGasLimit:
+          type: string # BigInt
+        messageMethod:
+          type: string # abi.MethodNum
+        params:
+          type: string # bytes
+
+# TODO: add response type Message receipt from Filecoin
+
+# security: # apply globally
+#   - ucanAuth: []

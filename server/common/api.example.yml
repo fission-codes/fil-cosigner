@@ -28,6 +28,9 @@ definitions:
         example: no_stress
 
 paths:
+  /v0/filecoin/keypair:
+    post:
+      tags:
   /v1/examples:
     get:
       tags:
