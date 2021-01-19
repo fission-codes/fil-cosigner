@@ -3,7 +3,7 @@ info:
   version: 1.0.0
   title: fil-cosigner
   description: Fission FileCoin Cosigner
-basePath: /api/v1
+basePath: /api
 tags:
   - name: Examples
     description: Simple example endpoints
@@ -28,7 +28,7 @@ definitions:
         example: no_stress
 
 paths:
-  /examples:
+  /v1/examples:
     get:
       tags:
         - Examples
@@ -45,13 +45,13 @@ paths:
           in: body
           description: an example
           required: true
-          schema: 
+          schema:
             $ref: "#/definitions/ExampleBody"
       responses:
         200:
           description: Returns all examples
 
-  /examples/{id}:
+  /v1/examples/{id}:
     get:
       tags:
         - Examples

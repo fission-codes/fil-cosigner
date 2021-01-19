@@ -3,7 +3,7 @@ import path from 'path';
 import bodyParser from 'body-parser';
 import http from 'http';
 import os from 'os';
-import cookieParser from 'cookie-parser';
+// import cookieParser from 'cookie-parser';
 import l from './logger';
 
 import installValidator from './swagger';

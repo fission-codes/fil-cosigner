@@ -29,10 +29,12 @@ export default function (
 
         app.use(
           middleware.parseRequest({
-            // Configure the cookie parser to use secure cookies
-            cookie: {
-              secret: process.env.SESSION_SECRET,
-            },
+            // TODO: let's not use cookies? #UCAN
+            // // Configure the cookie parser to use secure cookies
+            // cookie: {
+            //   secret: process.env.SESSION_SECRET,
+            // },
+
             // Don't allow JSON content over 100kb (default is 1mb)
             json: {
               limit: process.env.REQUEST_LIMIT,
