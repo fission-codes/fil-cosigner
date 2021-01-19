@@ -27,27 +27,32 @@ There are two key files:
 
 ## Install Dependencies
 
-Install all package dependencies (one time operation)
+Install all package dependencies (one time operation) with lockfile.
 
 ```shell
-npm install
+npm ci
+# or
+yarn install --frozen-lockfile
 ```
 
-## Run It
-#### Run in *development* mode:
-Runs the application is development mode. Should not be used in production
+## Run in *development* mode:
+Runs the application is development mode. Should not be used in production.
+The server can take environment variables from `.env` file. To get started easily, you can copy `.env.example` to `.env` to set some default variables for getting started.
 
 ```shell
-npm run dev
+# optionally
+cp .env.example .env
+
+yarn run dev
 ```
 
 or debug it
 
 ```shell
-npm run dev:debug
+yarn run dev:debug
 ```
 
-#### Run in *production* mode:
+## Run in *production* mode:
 
 Compiles the application and starts it in production production mode.
 
