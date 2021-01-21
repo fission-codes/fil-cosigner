@@ -1940,10 +1940,10 @@ negotiator@0.6.2:
   resolved "https://registry.yarnpkg.com/negotiator/-/negotiator-0.6.2.tgz#feacf7ccf525a77ae9634436a64883ffeca346fb"
   integrity sha512-hZXc7K2e+PgeI1eDBe/10Ard4ekbfrrqG8Ep+8Jmf4JID2bNg7NvCPOZN+kfF574pFQI7mum2AUqDidoKqcTOw==
 
-noble-bls12-381@^0.7.2:
-  version "0.7.2"
-  resolved "https://registry.yarnpkg.com/noble-bls12-381/-/noble-bls12-381-0.7.2.tgz#9a9384891569ba32785d6e4ff8588b783487eae4"
-  integrity sha512-Z5isbU6opuWPL3dxsGqO5BdOE8WP1XUM7HFIn/xeE5pATTnml/PEIy4MFQQrktHiitkuJdsCDtzEOnS9eIpC3Q==
+noble-bls12-381@^0.8.0:
+  version "0.8.0"
+  resolved "https://registry.yarnpkg.com/noble-bls12-381/-/noble-bls12-381-0.8.0.tgz#62c248aafe8009735478683fb40a845a6acdb824"
+  integrity sha512-gAXgFqrTxoO1LKwhuCy3nqUrqRZND4hvYcayyYkQFRp1kIt+2XwLD+nfOCOI7uV0w2aL+INPXuu3dx8s3y2roA==
 
 nodemon@^2.0.6:
   version "2.0.7"

@@ -25,7 +25,7 @@
     "cookie-parser": "^1.4.5",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
-    "noble-bls12-381": "^0.7.2",
+    "noble-bls12-381": "^0.8.0",
     "pino": "^6.8.0",
     "swagger-express-middleware": "^4.0.2"
   },
