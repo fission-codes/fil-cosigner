@@ -1,6 +1,7 @@
 import express from 'express';
-import controller from './controller';
+import * as controller from './controller';
 export default express
   .Router()
+  .get('/testing', controller.testing)
   .post('/keypairs', controller.createKeyPair)
   .post('/messages', controller.cosignMessage);
