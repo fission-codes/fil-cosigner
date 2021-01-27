@@ -21,10 +21,13 @@
     "test:debug": "mocha -r ts-node/register --inspect-brk test/**/*.ts --exit"
   },
   "dependencies": {
+    "@glif/filecoin-address": "^1.1.0-beta.18",
+    "@glif/filecoin-message": "^1.1.0-beta.17",
     "body-parser": "^1.19.0",
     "cookie-parser": "^1.4.5",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
+    "fp-ts": "^2.9.3",
     "noble-bls12-381": "^0.8.0",
     "pino": "^6.8.0",
     "swagger-express-middleware": "^4.0.2"

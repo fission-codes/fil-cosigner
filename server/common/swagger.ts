@@ -44,8 +44,8 @@ export default function (
 
         // These two middleware don't have any options (yet)
         // @@TODO: Re-enable middleware
-        // app.use(middleware.CORS(), middleware.validateRequest());
-        app.use(middleware.CORS());
+        app.use(middleware.CORS(), middleware.validateRequest());
+        // app.use(middleware.CORS());
 
         routes(app);
 

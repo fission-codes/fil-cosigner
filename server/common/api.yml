@@ -1,95 +1,79 @@
-openapi: 3.0.0
+swagger: "2.0"
 info:
-  title: Filecoin cosigner API
-  description: Securely sign Filecoin messages from the browser
-  version: 0.1.0
+  version: 1.0.0
+  title: fil-cosigner
+  description: Fission FileCoin Cosigner
+basePath: /api
+tags:
+  - name: Examples
+    description: Simple example endpoints
+  - name: Specification
+    description: The swagger API specification
 
-# trying to follow OpenAPI 3.0.0 https://swagger.io/docs/specification
+consumes:
+  - application/json
+produces:
+  - application/json
 
-# TODO: 1. is this information correct / desired paths
-# TODO: 2. does it mean something to specify an explicit server url
-#          if the architecture is user-centered on UCAN?
-#          so use relative URL for now.
-servers:
-  - url: /api/v0
+
+definitions:
+  ExampleBody:
+    type: object
+    title: example
+    required:
+      - name
+    properties:
+      name:
+        type: string
+        example: no_stress
 
 paths:
-  /filecoin/keypairs:
+  /v0/filecoin/keypair:
     post:
-      summary: Create a new keypair for cosigning
-      description: Request the creation of a BLS key to be paired with user's BLS key.
-      security:
-      - ucanAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                userOriginDid:
-                  type: string
-                userBlsPublicKey:
-                  type: string
+      tags:
+  /v1/examples:
+    get:
+      tags:
+        - Examples
+      description: Fetch all examples
       responses:
-        '201':  # status code https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
-          description: Returns the paired BLS key.
-  /filecoin/messsages:
+        200:
+          description: Returns all examples
     post:
-      summary: Cosign a message for Filecoin
-      description: Request a cosignature and optionally send to a network.
-      security:
-      - ucanAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/SignedFilecoinMessage'
+      tags:
+        - Examples
+      description: Create a new example
+      parameters:
+        - name: example
+          in: body
+          description: an example
+          required: true
+          schema:
+            $ref: "#/definitions/ExampleBody"
       responses:
-        '201':
-          description: Returns the signature and paired signature for the message,\n
-            and optionally message receipt.
+        200:
+          description: Returns all examples
 
-components:
-  securitySchemas:
-    ucanAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT UCAN
-  schemas:
-    SignedFilecoinMessage: # https://spec.filecoin.io/systems/filecoin_vm/message/
-      properties: # TODO: improve and expand, require all expect sendToNetwork
-        userSignature:
-          type: string
-        userBlsPublicKey:
-          type: string
-        userOriginDid:
-          type: string
-        network:
-          type: string # TODO: make enum 'filecoin/mainnet', 'filecoin/testnet'
-        sendToNetwork:
-          type: boolean # default true. if false only return signature
-        messageVersion:
+  /v1/examples/{id}:
+    get:
+      tags:
+        - Examples
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The id of the example to retrieve
           type: integer
-        messageTo:
-          type: string
-        messageFrom:
-          type: string
-        messageCallSeqNum:
-          type: integer # uint64
-        messageValue:
-          type: string # BigInt
-        messageGasPrice:
-          type: string # BigInt
-        messageGasLimit:
-          type: string # BigInt
-        messageMethod:
-          type: string # abi.MethodNum
-        params:
-          type: string # bytes
+      responses:
+        200:
+          description: Return the example with the specified id
+        404:
+          description: Example not found
 
-# TODO: add response type Message receipt from Filecoin
-
-# security: # apply globally
-#   - ucanAuth: []
+  /spec:
+    get:
+      tags:
+        - Specification
+      responses:
+        200:
+          description: Return the API specification
