@@ -35,3 +35,8 @@ const myfunc = (
 
   return right(fetch(url));
 }
+
+//---
+// alternative repo is https://github.com/supermacro/neverthrow
+// which focuses explicitly on Result<ok, err> and monads thereof
+// not as many stars and community as fp-ts though

@@ -28,6 +28,8 @@
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "fp-ts": "^2.9.3",
+    "ipld-dag-cbor": "^0.17.0",
+    "lowercase-keys": "^2.0.0",
     "noble-bls12-381": "^0.8.0",
     "pino": "^6.8.0",
     "swagger-express-middleware": "^4.0.2"

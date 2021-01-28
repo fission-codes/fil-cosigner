@@ -1,6 +1,6 @@
 import { validateAddressString } from '@glif/filecoin-address';
 
-import { LotusMessage, Signature } from './message';
+import { LotusMessage, Signature, SignedLotusMessage } from './message';
 import { BlsPrivateKey } from '../bls-aggregation/aggregation';
 
 /**
@@ -17,14 +17,17 @@ export interface CosignedLotusMessage extends LotusMessage, Signature {
   signer: string;
 }
 
-export const cosignMessage = (msg: LotusMessage, secretKey: string): CosignedLotusMessage => {
+export const cosign = (msg: LotusMessage, secretKey: string): CosignedLotusMessage => {
   // CBOR serialise the message
   // get the CID
   // sign the CID with secretKey
   // return msg, signature, & publicKey of signer
 }
 
-export const aggregateMessages = (msg1: CosignedLotusMessage, msg2: CosignedLotusMessage):  SignedMessage => {
+export const aggregate = (
+  msg1: CosignedLotusMessage,
+  msg2: CosignedLotusMessage
+  ): SignedLotusMessage => {
 
 }
 
