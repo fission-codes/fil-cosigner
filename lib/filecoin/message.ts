@@ -1,6 +1,7 @@
 import BigNumber from 'bignumber.js';
 import { Either, left, right } from "fp-ts/lib/Either";
 import { validateAddressString } from '@glif/filecoin-address';
+import { encode } from '@glif/filecoin-address'
 import lowercaseKeys from 'lowercase-keys';
 // import { tryCatch } from 'fp-ts/lib/Option';
 // import * as filecoinMessage from '@glif/filecoin-message';
@@ -118,19 +119,18 @@ export const castToLotusMessage = (inputMessage: any): Either<InvalidLotusMessag
     return left(new InvalidLotusMessage('params is a required field and must be a string'));
   }
 
-
-  const serializedMessage: LotusMessage = {
-    to: 'abc',
-    from: 'def',
-    nonce: 0,
-    value: '0',
-    gasPremium: '0',
-    gasLimit: 0,
-    gasFeeCap: '0',
-    method: 0,
-    params?: 'ghi'
+  const lotusMessage: LotusMessage = {
+    to: rawMessage.to,
+    from: rawMessage.from,
+    nonce: rawMessage.nonce,
+    value: rawMessage.value,
+    gasPremium: rawMessage.gaspremium,
+    gasLimit: rawMessage.gaslimit,
+    gasFeeCap: rawMessage.gasfeecap,
+    method: rawMessage.method,
+    params: rawMessage.params
   };
-  return right( serializedMessage );
+  return right( lotusMessage );
 };
 
 
