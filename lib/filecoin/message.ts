@@ -1,7 +1,8 @@
 import BigNumber from 'bignumber.js';
 import { Either, left, right } from "fp-ts/lib/Either";
 import { validateAddressString } from '@glif/filecoin-address';
-import { tryCatch } from 'fp-ts/lib/Option';
+import lowercaseKeys from 'lowercase-keys';
+// import { tryCatch } from 'fp-ts/lib/Option';
 // import * as filecoinMessage from '@glif/filecoin-message';
 
 BigNumber.set({ ROUNDING_MODE: BigNumber.ROUND_HALF_DOWN });
@@ -53,8 +54,10 @@ export interface SignedLotusMessage extends LotusMessage, Signature {};
  * Cast to Lotus Message returns either a construction error or a valid lotus
  * message.
  */
-export const castToLotusMessage = (rawMessage: any): Either<InvalidLotusMessage, LotusMessage> => {
+export const castToLotusMessage = (inputMessage: any): Either<InvalidLotusMessage, LotusMessage> => {
+  const rawMessage = lowercaseKeys(inputMessage);
 
+  // checks on to and from
   if (!('to' in rawMessage) || typeof rawMessage.to !== 'string') {
     return left(new InvalidLotusMessage(
       "'to is a required field and has to be a string"));
@@ -69,19 +72,54 @@ export const castToLotusMessage = (rawMessage: any): Either<InvalidLotusMessage,
   if (!validateAddressString(rawMessage.from)) {
     return left(new InvalidLotusMessage('invalid from address provided'))
   }
+  // checks on nonce
   if (!('nonce' in rawMessage) || typeof rawMessage.nonce !== 'number') {
     return left(new InvalidLotusMessage(
       "'nonce' is a required field and has to be a number"));
   }
+  // checks on value
   if (!('value' in rawMessage) || typeof rawMessage.value !== 'string') {
     return left(new InvalidLotusMessage(
       "'value' is a required field and has to be a string"));
   }
-  const valueCheckBN
-  if (!)
+  if (!isValidFilecoinDenomination(rawMessage.value)) {
+    return left(new InvalidLotusMessage(
+      'value must be a positive bignumber and less than maximum Filecoin issuance'));
+  }
+  // checks on gas limit
+  if (!('gaslimit' in rawMessage) || typeof rawMessage.gaslimit !== 'number') {
+    return left(new InvalidLotusMessage(
+      'gaslimit is a required field and has to be a number'));
+  }
+  // checks on gas fee cap
+  if (!('gasfeecap' in rawMessage) || typeof rawMessage.gasfeecap !== 'string') {
+    return left(new InvalidLotusMessage(
+      'gasfeecap is a required field and has to be a string'));
+  }
+  if (!isValidFilecoinDenomination(rawMessage.gasfeecap)) {
+    return left(new InvalidLotusMessage(
+      'gasfeecap must be a positive bignumber and less than maximum Filecoin issuance'));
+  }
+  // checks on gas premium
+  if (!('gaspremium' in rawMessage) || typeof rawMessage.gaspremium !== 'string') {
+    return left(new InvalidLotusMessage(
+      'gaspremium is a required field and has to be a string'));
+  }
+  if (!isValidFilecoinDenomination(rawMessage.gaspremium)) {
+    return left(new InvalidLotusMessage(
+      'gaspremium must be a positive bignumber and less than maximum Filecoin issuance'));
+  }
+  // checks on method
+  if (!('method' in rawMessage) || typeof rawMessage.method !== 'number') {
+    return left(new InvalidLotusMessage('method is a required field and must be a number'));
+  }
+  // checks on params
+  if (!('params' in rawMessage) || typeof rawMessage.params !== 'string') {
+    return left(new InvalidLotusMessage('params is a required field and must be a string'));
+  }
 
 
-  const message: LotusMessage = {
+  const serializedMessage: LotusMessage = {
     to: 'abc',
     from: 'def',
     nonce: 0,
@@ -89,43 +127,32 @@ export const castToLotusMessage = (rawMessage: any): Either<InvalidLotusMessage,
     gasPremium: '0',
     gasLimit: 0,
     gasFeeCap: '0',
-    method: 0;
+    method: 0,
     params?: 'ghi'
   };
-  return right( message );
+  return right( serializedMessage );
 };
 
-export const typeCheckLotusMessage = (msg: any): asserts msg is LotusMessage => {
-  if (!msg.to) throw new Error('No to address provided')
-  if (!msg.from) throw new Error('No from address provided')
-
-  if (!validateAddressString(msg.to))
-    throw new Error('Invalid to address provided')
-  if (!validateAddressString(msg.from))
-    throw new Error('Invalid from address provided')
-
-  if (!msg.nonce && msg.nonce !== 0) throw new Error('No nonce provided')
-  if (typeof msg.nonce !== 'number') throw new Error('Nonce is not a number')
-  if (!(msg.nonce <= Number.MAX_SAFE_INTEGER))
-    throw new Error('Nonce must be smaller than Number.MAX_SAFE_INTEGER')
-
-  if (!msg.value) throw new Error('No value provided')
-
-  if (msg.gasLimit && typeof msg.gasLimit !== 'number')
-    throw new Error('Gas limit is not a number')
-  if (msg.gasLimit && !(msg.gasLimit <= Number.MAX_SAFE_INTEGER))
-    throw new Error('Gas limit must be smaller than Number.MAX_SAFE_INTEGER')
-
-  if (!msg.method && msg.method !== 0) throw new Error('No method provided')
-  if (typeof msg.method !== 'number') throw new Error('Method is not a number')
-  if (!(msg.method <= Number.MAX_SAFE_INTEGER))
-    throw new Error('Method must be smaller than Number.MAX_SAFE_INTEGER')
-}
 
 /**
  * SignBytesMessage takes a Lotus Message, lower-cases the keys,
  * ipld-dag-cbor serializes it to obtain the CID bytes which are used for signing.
  */
 export const signBytesMessage(message: LotusMessage): Uint8Array => {
-
+  return
 }
+
+const isValidFilecoinDenomination(checkString: string): boolean => {
+  const valueCheck = new BigNumber(checkString);
+  if (valueCheck.isNaN() || !valueCheck.isPositive()) {
+    return false;
+  }
+  // max issuance is 2.000.000.000 FIL with 18 decimal places
+  const maxFilecoin = new BigNumber('2e27');
+  if (valueCheck > maxFilecoin) {
+    return false;
+  }
+  return true;
+}
+
+// const serializeBigInteger()
