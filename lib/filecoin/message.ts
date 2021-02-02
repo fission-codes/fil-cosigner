@@ -3,13 +3,18 @@ import { Either, left, right } from "fp-ts/lib/Either";
 import { validateAddressString } from '@glif/filecoin-address';
 // import { encode } from '@glif/filecoin-address'
 import { dagCbor } from 'ipld-dag-cbor';
+// TODO: this repo is working but static since 2018; readme refers to https://github.com/vrza/node-blake2
+// examine if any value in switching over
 import { blake } from 'blakejs';
 import lowercaseKeys from 'lowercase-keys';
+import { BlsSigningBytes } from '../crypto/bls12-381/aggregation';
 // import { tryCatch } from 'fp-ts/lib/Option';
 // import * as filecoinMessage from '@glif/filecoin-message';
 
+// if attoFil strings have decimals, casting should fail either way, making this irrelevant for us
 BigNumber.set({ ROUNDING_MODE: BigNumber.ROUND_HALF_DOWN });
-BigNumber.config({ EXPONENTIAL_AT: 1e9 });
+// TODO: taken from glifio, but is this relevant? will comment out, remove later
+// BigNumber.config({ EXPONENTIAL_AT: 1e9 });
 
 const MessageVersion = 0;
 // TODO: check prefix origin and correctness; taken from
@@ -29,15 +34,25 @@ export class InvalidLotusMessage extends Error {}
  * reference https://github.com/filecoin-project/lotus/blob/master/chain/types/message.go#L30
  */
 export interface LotusMessage {
+  // support version 0 only
   version: number;
+  // filecoin address as destination of message
   to: string;
+  // filecoin address from which message is sent
   from: string;
+  // strict increasing uint64 for each sequential number (TODO: starting with 1?)
   nonce: number;
+  // value in attoFil big integer as string
   value: string;
+  // gas premium in attoFil big integer as string
   gasPremium: string;
+  // gas limit in gas as uint64
   gasLimit: number;
+  // gas fee cap in attoFil big integer as string
   gasFeeCap: string;
+  // method number as uint64 indication function on actor associated with to address
   method: number;
+  // params for function call as bytes
   params: string | string[];
 }
 
@@ -153,12 +168,12 @@ export const castToLotusMessage = (inputMessage: any): Either<InvalidLotusMessag
   return right( lotusMessage );
 }
 
-
 /**
  * SignatureBytesLotusMessage takes a Lotus Message, lower-cases the keys,
  * ipld-dag-cbor serializes it to obtain the CID bytes which are used for signing.
  */
-export const signatureBytesLotusMessage = (message: LotusMessage): Buffer => {
+export const signatureBytesLotusMessage =
+  (message: LotusMessage): BlsSigningBytes => {
   const Key = null; // optional key, leave null
   const OutputLength = 32; // output length in bytes
 
@@ -172,7 +187,7 @@ export const signatureBytesLotusMessage = (message: LotusMessage): Buffer => {
   const blakeDigestCtx = blake.blake2bInit(OutputLength, Key);
   // signature bytes are the blake2b256 hash digest of the message CID
   blake.blake2bUpdate(blakeDigestCtx, messageCid);
-  return Buffer.from(blake.blake2bFinal(blakeDigestCtx));
+  return blake.blake2bFinal(blakeDigestCtx);
 }
 
 const serializeLotusMessage = (lotusMessage: LotusMessage): Uint8Array => {
