@@ -1,7 +1,9 @@
 import BigNumber from 'bignumber.js';
 import { Either, left, right } from "fp-ts/lib/Either";
 import { validateAddressString } from '@glif/filecoin-address';
-import { encode } from '@glif/filecoin-address'
+// import { encode } from '@glif/filecoin-address'
+import { dagCbor } from 'ipld-dag-cbor';
+import { blake } from 'blakejs';
 import lowercaseKeys from 'lowercase-keys';
 // import { tryCatch } from 'fp-ts/lib/Option';
 // import * as filecoinMessage from '@glif/filecoin-message';
@@ -9,7 +11,13 @@ import lowercaseKeys from 'lowercase-keys';
 BigNumber.set({ ROUNDING_MODE: BigNumber.ROUND_HALF_DOWN });
 BigNumber.config({ EXPONENTIAL_AT: 1e9 });
 
+const MessageVersion = 0;
+// TODO: check prefix origin and correctness; taken from
+// https://github.com/zondax/filecoin-signing-tools/blob/76d6aa81f697566a976a68c2e30803bf2d4bd397/examples/wasm_node/test/utils.js
+const CidPrefix = Buffer.from([0x01, 0x71, 0xa0, 0xe4, 0x02, 0x20]);
+
 export class InvalidLotusMessage extends Error {}
+
 
 // user-stories
 // - validate filecoin messages
@@ -21,6 +29,7 @@ export class InvalidLotusMessage extends Error {}
  * reference https://github.com/filecoin-project/lotus/blob/master/chain/types/message.go#L30
  */
 export interface LotusMessage {
+  version: number;
   to: string;
   from: string;
   nonce: number;
@@ -29,7 +38,7 @@ export interface LotusMessage {
   gasLimit: number;
   gasFeeCap: string;
   method: number;
-  params?: string | string[];
+  params: string | string[];
 }
 
 /**
@@ -58,6 +67,14 @@ export interface SignedLotusMessage extends LotusMessage, Signature {};
 export const castToLotusMessage = (inputMessage: any): Either<InvalidLotusMessage, LotusMessage> => {
   const rawMessage = lowercaseKeys(inputMessage);
 
+  // checks on version number
+  if (!('version' in rawMessage) || typeof rawMessage.version !== 'number') {
+    return left(new InvalidLotusMessage(
+      'version is a required field and has to be a number'));
+  }
+  if (rawMessage.version !== 0) {
+    return left(new InvalidLotusMessage('version number is not supported'));
+  }
   // checks on to and from
   if (!('to' in rawMessage) || typeof rawMessage.to !== 'string') {
     return left(new InvalidLotusMessage(
@@ -119,7 +136,10 @@ export const castToLotusMessage = (inputMessage: any): Either<InvalidLotusMessag
     return left(new InvalidLotusMessage('params is a required field and must be a string'));
   }
 
+  // TODO: check addresses to and from are on the same network
+
   const lotusMessage: LotusMessage = {
+    version: rawMessage.version,
     to: rawMessage.to,
     from: rawMessage.from,
     nonce: rawMessage.nonce,
@@ -131,20 +151,55 @@ export const castToLotusMessage = (inputMessage: any): Either<InvalidLotusMessag
     params: rawMessage.params
   };
   return right( lotusMessage );
-};
+}
 
 
 /**
- * SignBytesMessage takes a Lotus Message, lower-cases the keys,
+ * SignatureBytesLotusMessage takes a Lotus Message, lower-cases the keys,
  * ipld-dag-cbor serializes it to obtain the CID bytes which are used for signing.
  */
-export const signBytesMessage(message: LotusMessage): Uint8Array => {
-  return
+export const signatureBytesLotusMessage = (message: LotusMessage): Buffer => {
+  const Key = null; // optional key, leave null
+  const OutputLength = 32; // output length in bytes
+
+  const cborLotusMessage = serializeLotusMessage(message);
+
+  const blakeCidCtx = blake.blake2bInit(OutputLength, Key);
+  // get CID of message by hashing cbor serialisation with blake2b 256bits
+  blake.blake2bUpdate(blakeCidCtx, cborLotusMessage);
+  const messageCid = Buffer.concat([CidPrefix, blake.blake2bFinal(blakeCidCtx)]);
+
+  const blakeDigestCtx = blake.blake2bInit(OutputLength, Key);
+  // signature bytes are the blake2b256 hash digest of the message CID
+  blake.blake2bUpdate(blakeDigestCtx, messageCid);
+  return Buffer.from(blake.blake2bFinal(blakeDigestCtx));
 }
 
-const isValidFilecoinDenomination(checkString: string): boolean => {
+const serializeLotusMessage = (lotusMessage: LotusMessage): Uint8Array => {
+
+  const messageToSerialize = [
+    lotusMessage.version,
+    lotusMessage.to,
+    lotusMessage.from,
+    lotusMessage.nonce,
+    lotusMessage.value,
+    lotusMessage.gasLimit,
+    lotusMessage.gasFeeCap,
+    lotusMessage.gasPremium,
+    lotusMessage.method,
+    lotusMessage.params // TODO: unanswered/untested, ok as string, or cast to Buffer byte array?
+  ]
+
+  return dagCbor.util.serialize(messageToSerialize);
+}
+
+const isValidFilecoinDenomination = (checkString: string): boolean => {
   const valueCheck = new BigNumber(checkString);
   if (valueCheck.isNaN() || !valueCheck.isPositive()) {
+    return false;
+  }
+  // assert the string did not have exponential notation
+  if (!(valueCheck.toFixed(0, 1) === checkString)) {
     return false;
   }
   // max issuance is 2.000.000.000 FIL with 18 decimal places
@@ -155,4 +210,4 @@ const isValidFilecoinDenomination(checkString: string): boolean => {
   return true;
 }
 
-// const serializeBigInteger()
+// const serializeBigInteger(attoFilValue)
