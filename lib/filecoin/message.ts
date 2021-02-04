@@ -16,13 +16,14 @@ BigNumber.set({ ROUNDING_MODE: BigNumber.ROUND_HALF_DOWN });
 // TODO: taken from glifio, but is this relevant? will comment out, remove later
 // BigNumber.config({ EXPONENTIAL_AT: 1e9 });
 
-const MessageVersion = 0;
+const messageVersion = 0;
 // TODO: check prefix origin and correctness; taken from
 // https://github.com/zondax/filecoin-signing-tools/blob/76d6aa81f697566a976a68c2e30803bf2d4bd397/examples/wasm_node/test/utils.js
-const CidPrefix = Buffer.from([0x01, 0x71, 0xa0, 0xe4, 0x02, 0x20]);
+const cidPrefix = Buffer.from([0x01, 0x71, 0xa0, 0xe4, 0x02, 0x20]);
+export const secpSignatureType = 0;
+export const blsSignatureType = 1;
 
 export class InvalidLotusMessage extends Error {}
-
 
 // user-stories
 // - validate filecoin messages
@@ -87,7 +88,7 @@ export const castToLotusMessage = (inputMessage: any): Either<InvalidLotusMessag
     return left(new InvalidLotusMessage(
       'version is a required field and has to be a number'));
   }
-  if (rawMessage.version !== 0) {
+  if (rawMessage.version !== messageVersion) {
     return left(new InvalidLotusMessage('version number is not supported'));
   }
   // checks on to and from
@@ -169,10 +170,11 @@ export const castToLotusMessage = (inputMessage: any): Either<InvalidLotusMessag
 }
 
 /**
- * SignatureBytesLotusMessage takes a Lotus Message, lower-cases the keys,
- * ipld-dag-cbor serializes it to obtain the CID bytes which are used for signing.
+ * SigningBytesLotusMessage takes a Lotus Message, lower-cases the keys,
+ * ipld-dag-cbor serializes it to obtain the digest of the CID bytes
+ * which are used for signing.
  */
-export const signatureBytesLotusMessage =
+export const signingBytesLotusMessage =
   (message: LotusMessage): BlsSigningBytes => {
   const Key = null; // optional key, leave null
   const OutputLength = 32; // output length in bytes
@@ -182,10 +184,10 @@ export const signatureBytesLotusMessage =
   const blakeCidCtx = blake.blake2bInit(OutputLength, Key);
   // get CID of message by hashing cbor serialisation with blake2b 256bits
   blake.blake2bUpdate(blakeCidCtx, cborLotusMessage);
-  const messageCid = Buffer.concat([CidPrefix, blake.blake2bFinal(blakeCidCtx)]);
+  const messageCid = Buffer.concat([cidPrefix, blake.blake2bFinal(blakeCidCtx)]);
 
   const blakeDigestCtx = blake.blake2bInit(OutputLength, Key);
-  // signature bytes are the blake2b256 hash digest of the message CID
+  // signing bytes are the blake2b256 hash digest of the message CID
   blake.blake2bUpdate(blakeDigestCtx, messageCid);
   return blake.blake2bFinal(blakeDigestCtx);
 }

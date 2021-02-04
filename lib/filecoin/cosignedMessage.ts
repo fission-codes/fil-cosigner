@@ -1,7 +1,10 @@
-import { validateAddressString } from '@glif/filecoin-address';
+import { newBLSAddress, validateAddressString } from '@glif/filecoin-address';
 
-import { LotusMessage, Signature, signatureBytesLotusMessage } from './message';
-import { BlsPrivateKey } from '../crypto/bls12-381/aggregation';
+import { LotusMessage,
+         Signature,
+         signingBytesLotusMessage,
+         blsSignatureType } from './message';
+import { BlsPrivateKey, sign } from '../crypto/bls12-381/aggregation';
 
 /**
  * Cosigned Lotus Message explicitly specifies the address of the signer
@@ -20,11 +23,18 @@ export interface CosignedLotusMessage extends LotusMessage, Signature {
 export const cosign = async (
   lotusMessage: LotusMessage,
   privateKey: BlsPrivateKey): Promise<CosignedLotusMessage> => {
-  const signatureBytes = signatureBytesLotusMessage(lotusMessage)
+  const signingBytes = signingBytesLotusMessage(lotusMessage)
   // sign the CID with secretKey
-  // return msg, signature, & publicKey of signer
-
-  return
+  // return msg, signature, & address of signer
+  const signature = await sign(signingBytes, privateKey);
+  const signer =
+  const cosignedLotusMessage: CosignedLotusMessage = {
+    ...lotusMessage,
+    data: signature.toString(), // data of signature as string
+    type: blsSignatureType, // BLS signature type
+    signer:'abc'
+  };
+  return Promise.resolve(cosignedLotusMessage);
 }
 
 // export const aggregate = (
