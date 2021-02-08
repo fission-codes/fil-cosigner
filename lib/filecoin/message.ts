@@ -7,7 +7,7 @@ import { dagCbor } from 'ipld-dag-cbor';
 // examine if any value in switching over
 import { blake } from 'blakejs';
 import lowercaseKeys from 'lowercase-keys';
-import { BlsSigningBytes } from '../crypto/bls12-381/aggregation';
+import { BlsSigningBytes } from '../crypto/bls12-381/operations';
 // import { tryCatch } from 'fp-ts/lib/Option';
 // import * as filecoinMessage from '@glif/filecoin-message';
 
@@ -67,8 +67,8 @@ export interface LotusMessage {
  * https://github.com/filecoin-project/go-state-types/blob/95828685f9df463f052a5d42b8f6c2502f873ceb/crypto/signature.go
  */
 export interface Signature {
-  type: number; // 0 for secp; 1 for bls;
-  data: string; // byte string
+  signatureType: number; // 0 for secp; 1 for bls;
+  signatureBytes: Uint8Array; // bytes, map to "data" as string for Filecoin
 }
 
 /**

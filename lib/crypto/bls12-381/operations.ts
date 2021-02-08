@@ -28,14 +28,14 @@ export const getPublicKey = (privateKey: BlsPrivateKey): BlsPublicKey => {
   return <Uint8Array>pubKeyBytes;
 };
 
-export const verify = async (
+export const blsVerify = async (
   signature: BlsSignature,
   signingBytes: BlsSigningBytes,
   publicKey: BlsPublicKey): Promise<boolean>  => {
   return bls.verify(signature, signingBytes, publicKey);
 };
 
-export const sign = async (
+export const blsSign = async (
   signingBytes: BlsSigningBytes,
   privateKey: BlsPrivateKey): Promise<BlsSignature> => {
   return bls.sign(signingBytes, privateKey);

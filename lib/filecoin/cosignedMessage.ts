@@ -12,8 +12,9 @@ import {
 import {
   BlsPrivateKey,
   BlsPublicKey,
-  sign,
-  getPublicKey } from '../crypto/bls12-381/aggregation';
+  blsSign,
+  blsVerify,
+  getPublicKey } from '../crypto/bls12-381/operations';
 
 /**
  * Cosigned Lotus Message explicitly specifies the address of the signer
@@ -38,7 +39,7 @@ export const cosign = async (
   const signingBytes = signingBytesLotusMessage(lotusMessage)
   // sign the CID with secretKey
   // return msg, signature, & address of signer
-  const signature = await sign(signingBytes, privateKey);
+  const signature = await blsSign(signingBytes, privateKey);
   const blsPublicKey = getPublicKey(privateKey);
   const address = newAddress(
     Protocol.BLS,
@@ -46,13 +47,24 @@ export const cosign = async (
     network);
   const cosignedLotusMessage: CosignedLotusMessage = {
     ...lotusMessage,
-    data: signature.toString(), // data of signature as string
-    type: blsSignatureType, // BLS signature type
+    signatureBytes: signature, // data bytes of signature
+    signatureType: blsSignatureType, // BLS signature type
     address: address, // address with BLS protocol and network specified
     blsPublicKey: blsPublicKey // keep BLS public key for aggregation
   };
   return Promise.resolve(cosignedLotusMessage);
 }
+
+export const verify = async (
+  cosignedLotusMessage: CosignedLotusMessage): Promise<boolean> => {
+
+  const signingBytes = signingBytesLotusMessage(cosignedLotusMessage);
+  return blsVerify(
+    cosignedLotusMessage.signatureBytes,
+    signingBytes,
+    cosignedLotusMessage.blsPublicKey);
+}
+
 
 // export const aggregate = (
 //   msg1: CosignedLotusMessage,
