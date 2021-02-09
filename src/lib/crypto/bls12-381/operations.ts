@@ -40,6 +40,3 @@ export const blsSign = async (
   privateKey: BlsPrivateKey): Promise<BlsSignature> => {
   return bls.sign(signingBytes, privateKey);
 };
-
-
-function

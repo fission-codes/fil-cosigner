@@ -2,10 +2,10 @@ import BigNumber from 'bignumber.js';
 import { Either, left, right } from "fp-ts/lib/Either";
 import { validateAddressString } from '@glif/filecoin-address';
 // import { encode } from '@glif/filecoin-address'
-import { dagCbor } from 'ipld-dag-cbor';
+import * as cborDag from 'ipld-dag-cbor/src/util';
 // TODO: this repo is working but static since 2018; readme refers to https://github.com/vrza/node-blake2
 // examine if any value in switching over
-import { blake } from 'blakejs';
+import  * as blake from 'blakejs/blake2b.js';
 import lowercaseKeys from 'lowercase-keys';
 import { BlsSigningBytes } from '../crypto/bls12-381/operations';
 // import { tryCatch } from 'fp-ts/lib/Option';
@@ -207,7 +207,7 @@ const serializeLotusMessage = (lotusMessage: LotusMessage): Uint8Array => {
     lotusMessage.params // TODO: unanswered/untested, ok as string, or cast to Buffer byte array?
   ]
 
-  return dagCbor.util.serialize(messageToSerialize);
+  return cborDag.serialize(messageToSerialize);
 }
 
 const isValidFilecoinDenomination = (checkString: string): boolean => {
