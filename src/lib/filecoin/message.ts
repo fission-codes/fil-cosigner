@@ -8,6 +8,7 @@ import * as cborDag from 'ipld-dag-cbor/src/util';
 import  * as blake from 'blakejs/blake2b.js';
 import lowercaseKeys from 'lowercase-keys';
 import { BlsSigningBytes } from '../crypto/bls12-381/operations';
+import base32Encode from 'base32-encode';
 // import { tryCatch } from 'fp-ts/lib/Option';
 // import * as filecoinMessage from '@glif/filecoin-message';
 
@@ -184,13 +185,30 @@ export const signingBytesLotusMessage =
   const blakeCidCtx = blake.blake2bInit(OutputLength, Key);
   // get CID of message by hashing cbor serialisation with blake2b 256bits
   blake.blake2bUpdate(blakeCidCtx, cborLotusMessage);
-  const messageCid = Buffer.concat([cidPrefix, blake.blake2bFinal(blakeCidCtx)]);
+  const hashDigest = blake.blake2bFinal(blakeCidCtx);
+  const messageCid = Buffer.concat([cidPrefix, hashDigest]);
 
+  console.log(base32Encode(hashDigest, "RFC4648", { padding: false }).toLowerCase());
+  // console.log(messageCid);
   const blakeDigestCtx = blake.blake2bInit(OutputLength, Key);
   // signing bytes are the blake2b256 hash digest of the message CID
   blake.blake2bUpdate(blakeDigestCtx, messageCid);
   return blake.blake2bFinal(blakeDigestCtx);
 }
+
+// const getCid = (message: LotusMessage): string => {
+//   const Key = null; // optional key, leave null
+//   const OutputLength = 32; // output length in bytes
+
+//   const cborLotusMessage = serializeLotusMessage(message);
+
+//   const blakeCidCtx = blake.blake2bInit(OutputLength, Key);
+//   // get CID of message by hashing cbor serialisation with blake2b 256bits
+//   blake.blake2bUpdate(blakeCidCtx, cborLotusMessage);
+//   const messageCid = Buffer.concat([cidPrefix, blake.blake2bFinal(blakeCidCtx)]);
+
+
+// }
 
 const serializeLotusMessage = (lotusMessage: LotusMessage): Uint8Array => {
 
@@ -227,4 +245,4 @@ const isValidFilecoinDenomination = (checkString: string): boolean => {
   return true;
 }
 
-// const serializeBigInteger(attoFilValue)
+// const serializeBigInteger(attoFilValue: string)

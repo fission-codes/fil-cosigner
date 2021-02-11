@@ -49,25 +49,20 @@ describe('constructing a Lotus Message', () => {
 });
 
 describe('signing bytes of a Lotus Message', () => {
-    // load test data
-    const testVector = JSON.parse(
-      readFileSync('./test-vectors/filecoin/getCid.json').toString());
+  // load test data
+  const testVector = JSON.parse(
+    readFileSync('./test-vectors/filecoin/getCid.json').toString());
 
-    it('should marshal correct bytes', () => {
-      console.log(
-        castToLotusMessage(testVector.signed_message.message)
-      );
-      assert(isRight(castToLotusMessage(testVector.signed_message.message)));
-      // pipe(castToLotusMessage(testVector.signed_message.message)), fold(
-      //   (error: InvalidLotusMessage): void => {
-      //     assert(false, 'expected valid Lotus Message')
-      //   },
-      //   (lotusMessage: LotusMessage): void => {
-      //     assert(false, 'what?');
-      //     console.log(lotusMessage);
-      //     const sbytes = signingBytesLotusMessage(lotusMessage);
-      //   }
-      // );
+  it('should marshal correct bytes', () => {
+    pipe(castToLotusMessage(testVector.signed_message.message), fold(
+      (_error: InvalidLotusMessage): void => {
+        assert(false, 'expected valid Lotus Message');
+      },
+      (lotusMessage: LotusMessage): void => {
+        console.log(lotusMessage);
+        console.log(signingBytesLotusMessage(lotusMessage));
+      }
+    ));
   });
 });
 
