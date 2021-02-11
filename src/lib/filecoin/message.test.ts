@@ -19,7 +19,7 @@ const incompleteBaseLotusMessagObject = {
 }
 
 const baseLotusMessagObject = {
-  // version: 0,
+  version: 0,
   to: 't03832874859695014541',
   from: 't1pyfq7dg6sq65acyomqvzvbgwni4zllglqffw5dy',
   nonce: 10,
@@ -54,6 +54,9 @@ describe('signing bytes of a Lotus Message', () => {
       readFileSync('./test-vectors/filecoin/getCid.json').toString());
 
     it('should marshal correct bytes', () => {
+      console.log(
+        castToLotusMessage(testVector.signed_message.message)
+      );
       assert(isRight(castToLotusMessage(testVector.signed_message.message)));
       // pipe(castToLotusMessage(testVector.signed_message.message)), fold(
       //   (error: InvalidLotusMessage): void => {
