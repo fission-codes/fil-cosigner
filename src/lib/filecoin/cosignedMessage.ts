@@ -15,6 +15,7 @@ import {
   blsSign,
   blsVerify,
   getPublicKey } from '../crypto/bls12-381/operations';
+import { right, isLeft, Either } from 'fp-ts/lib/Either';
 
 /**
  * Cosigned Lotus Message explicitly specifies the address of the signer
@@ -35,8 +36,11 @@ export const cosign = async (
   lotusMessage: LotusMessage,
   privateKey: BlsPrivateKey,
   network: Network
-): Promise<CosignedLotusMessage> => {
-  const signingBytes = signingBytesLotusMessage(lotusMessage)
+): Promise<Either<Error, CosignedLotusMessage>> => {
+  const eitherSigningBytes = signingBytesLotusMessage(lotusMessage)
+  // TODO: properly handle promise as EitherTask for async Either;
+  if (isLeft(eitherSigningBytes)) return Promise.resolve(eitherSigningBytes);
+  const signingBytes = eitherSigningBytes.right;
   // sign the CID with secretKey
   // return msg, signature, & address of signer
   const signature = await blsSign(signingBytes, privateKey);
@@ -52,7 +56,7 @@ export const cosign = async (
     address: address, // address with BLS protocol and network specified
     blsPublicKey: blsPublicKey // keep BLS public key for aggregation
   };
-  return Promise.resolve(cosignedLotusMessage);
+  return Promise.resolve(right(cosignedLotusMessage));
 }
 
 export const verify = async (

@@ -177,11 +177,13 @@ export const castToLotusMessage = (inputMessage: any): Either<InvalidLotusMessag
  * which are used for signing.
  */
 export const signingBytesLotusMessage =
-  (message: LotusMessage): BlsSigningBytes => {
+  (message: LotusMessage): Either<Error, BlsSigningBytes> => {
   const Key = null; // optional key, leave null
   const OutputLength = 32; // output length in bytes
 
-  const cborLotusMessage = serializeLotusMessage(message);
+  const eitherCborLotusMessage = serializeLotusMessage(message);
+  if (isLeft(eitherCborLotusMessage)) return eitherCborLotusMessage;
+  const cborLotusMessage = eitherCborLotusMessage.right;
 
   const blakeCidCtx = blake.blake2bInit(OutputLength, Key);
   // get CID of message by hashing cbor serialisation with blake2b 256bits
@@ -194,7 +196,7 @@ export const signingBytesLotusMessage =
   const blakeDigestCtx = blake.blake2bInit(OutputLength, Key);
   // signing bytes are the blake2b256 hash digest of the message CID
   blake.blake2bUpdate(blakeDigestCtx, messageCid);
-  return blake.blake2bFinal(blakeDigestCtx);
+  return right(blake.blake2bFinal(blakeDigestCtx));
 }
 
 // const getCid = (message: LotusMessage): string => {
