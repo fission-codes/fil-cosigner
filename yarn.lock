@@ -735,6 +735,16 @@ cids@^1.0.0:
     multihashes "^3.1.0"
     uint8arrays "^2.0.5"
 
+cids@^1.1.5:
+  version "1.1.5"
+  resolved "https://registry.yarnpkg.com/cids/-/cids-1.1.5.tgz#778bf8b70de3a0bf70989fd7d89c28fe23c685cb"
+  integrity sha512-i0V7tF2Jf78BKXyy2rpy1H/ozaJEP8b3Z7ZcHe9J86RRvJZ4e7daaJP3xwL09e14/Bl/mYX5WVc36fbQtjH7Sg==
+  dependencies:
+    multibase "^3.0.1"
+    multicodec "^2.1.0"
+    multihashes "^3.1.0"
+    uint8arrays "^2.0.5"
+
 cli-boxes@^2.2.0:
   version "2.2.1"
   resolved "https://registry.npmjs.org/cli-boxes/-/cli-boxes-2.2.1.tgz"

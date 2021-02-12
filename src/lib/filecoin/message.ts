@@ -10,8 +10,8 @@ import lowercaseKeys from 'lowercase-keys';
 import { BlsSigningBytes } from '../crypto/bls12-381/operations';
 import base32Encode from 'base32-encode';
 import { addressStringToBytes, attoFilStringToBytes } from './utils';
-// import { tryCatch } from 'fp-ts/lib/Option';
-// import * as filecoinMessage from '@glif/filecoin-message';
+import CID from 'cids';
+
 
 // if attoFil strings have decimals, casting should fail either way, making this irrelevant for us
 BigNumber.set({ ROUNDING_MODE: BigNumber.ROUND_HALF_DOWN });
@@ -181,14 +181,17 @@ export const signingBytesLotusMessage =
   const Key = null; // optional key, leave null
   const OutputLength = 32; // output length in bytes
 
-  const eitherCborLotusMessage = serializeLotusMessage(message);
-  if (isLeft(eitherCborLotusMessage)) return eitherCborLotusMessage;
-  const cborLotusMessage = eitherCborLotusMessage.right;
+  const eitherCborEncodedLotusMessage = serializeLotusMessage(message);
+  if (isLeft(eitherCborEncodedLotusMessage)) return eitherCborEncodedLotusMessage;
+  const cborEncodedLotusMessage = eitherCborEncodedLotusMessage.right;
 
   const blakeCidCtx = blake.blake2bInit(OutputLength, Key);
   // get CID of message by hashing cbor serialisation with blake2b 256bits
-  blake.blake2bUpdate(blakeCidCtx, cborLotusMessage);
+  blake.blake2bUpdate(blakeCidCtx, cborEncodedLotusMessage);
   const hashDigest = blake.blake2bFinal(blakeCidCtx);
+  const msgCid = new CID(1, 'dag-pb', hashDigest);
+  console.log('cid :' + msgCid);
+
   const messageCid = Buffer.concat([cidPrefix, hashDigest]);
 
   console.log(base32Encode(hashDigest, "RFC4648", { padding: false }).toLowerCase());
@@ -237,7 +240,7 @@ const serializeLotusMessage = (lotusMessage: LotusMessage): Either<Error, Uint8A
     Buffer.from(lotusMessage.params, 'base64')
   ]
 
-  return cborDag.serialize(messageToSerialize);
+  return right(cborDag.serialize(messageToSerialize));
 }
 
 const isValidFilecoinDenomination = (checkString: string): boolean => {
