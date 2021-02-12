@@ -1,5 +1,5 @@
 import BigNumber from 'bignumber.js';
-import { Either, left, right } from "fp-ts/lib/Either";
+import { Either, left, right, isLeft } from "fp-ts/lib/Either";
 import { validateAddressString } from '@glif/filecoin-address';
 // import { encode } from '@glif/filecoin-address'
 import * as cborDag from 'ipld-dag-cbor/src/util';
@@ -9,6 +9,7 @@ import  * as blake from 'blakejs/blake2b.js';
 import lowercaseKeys from 'lowercase-keys';
 import { BlsSigningBytes } from '../crypto/bls12-381/operations';
 import base32Encode from 'base32-encode';
+import { addressStringToBytes, attoFilStringToBytes } from './utils';
 // import { tryCatch } from 'fp-ts/lib/Option';
 // import * as filecoinMessage from '@glif/filecoin-message';
 
@@ -55,7 +56,7 @@ export interface LotusMessage {
   // method number as uint64 indication function on actor associated with to address
   method: number;
   // params for function call as bytes
-  params: string | string[];
+  params: string;
 }
 
 /**
@@ -206,23 +207,32 @@ export const signingBytesLotusMessage =
 //   // get CID of message by hashing cbor serialisation with blake2b 256bits
 //   blake.blake2bUpdate(blakeCidCtx, cborLotusMessage);
 //   const messageCid = Buffer.concat([cidPrefix, blake.blake2bFinal(blakeCidCtx)]);
-
-
 // }
 
-const serializeLotusMessage = (lotusMessage: LotusMessage): Uint8Array => {
+const serializeLotusMessage = (lotusMessage: LotusMessage): Either<Error, Uint8Array> => {
+
+  const toEitherBytes = addressStringToBytes(lotusMessage.to);
+  if (isLeft(toEitherBytes)) return toEitherBytes;
+  const toBytes: Buffer = toEitherBytes.right;
+
+  const fromEitherBytes = addressStringToBytes(lotusMessage.from);
+  if (isLeft(fromEitherBytes)) return fromEitherBytes;
+  const fromBytes: Buffer = fromEitherBytes.right;
+
+  const valueBytes = attoFilStringToBytes(lotusMessage.value);
+  const gasFeeCapBytes = attoFilStringToBytes(lotusMessage.gasFeeCap);
+  const gasPremiumBytes = attoFilStringToBytes(lotusMessage.gasPremium);
 
   const messageToSerialize = [
     lotusMessage.version,
-    lotusMessage.to,
-    lotusMessage.from,
+    toBytes,
+    fromBytes,
     lotusMessage.nonce,
-    lotusMessage.value,
+    valueBytes,
     lotusMessage.gasLimit,
-    lotusMessage.gasFeeCap,
-    lotusMessage.gasPremium,
-    lotusMessage.method,
-    lotusMessage.params // TODO: unanswered/untested, ok as string, or cast to Buffer byte array?
+    gasFeeCapBytes,
+    gasPremiumBytes,
+    Buffer.from(lotusMessage.params, 'base64')
   ]
 
   return cborDag.serialize(messageToSerialize);
@@ -244,5 +254,3 @@ const isValidFilecoinDenomination = (checkString: string): boolean => {
   }
   return true;
 }
-
-// const serializeBigInteger(attoFilValue: string)
