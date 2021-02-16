@@ -10,7 +10,7 @@ import lowercaseKeys from 'lowercase-keys';
 import { BlsSigningBytes } from '../crypto/bls12-381/operations';
 import base32Encode from 'base32-encode';
 import { addressStringToBytes, attoFilStringToBytes } from './utils';
-import CID from 'cids';
+// TODO: remove CID from package.json if still unused
 
 
 // if attoFil strings have decimals, casting should fail either way, making this irrelevant for us
@@ -162,9 +162,9 @@ export const castToLotusMessage = (inputMessage: any): Either<InvalidLotusMessag
     from: rawMessage.from,
     nonce: rawMessage.nonce,
     value: rawMessage.value,
-    gasPremium: rawMessage.gaspremium,
     gasLimit: rawMessage.gaslimit,
     gasFeeCap: rawMessage.gasfeecap,
+    gasPremium: rawMessage.gaspremium,
     method: rawMessage.method,
     params: rawMessage.params
   };
@@ -189,32 +189,17 @@ export const signingBytesLotusMessage =
   // get CID of message by hashing cbor serialisation with blake2b 256bits
   blake.blake2bUpdate(blakeCidCtx, cborEncodedLotusMessage);
   const hashDigest = blake.blake2bFinal(blakeCidCtx);
-  const msgCid = new CID(1, 'dag-pb', hashDigest);
-  console.log('cid :' + msgCid);
-
   const messageCid = Buffer.concat([cidPrefix, hashDigest]);
 
-  console.log(base32Encode(hashDigest, "RFC4648", { padding: false }).toLowerCase());
-  // console.log(messageCid);
+  // console.log('cid ' + base32Encode(messageCid, "RFC4648", { padding: false }).toLowerCase());
+
   const blakeDigestCtx = blake.blake2bInit(OutputLength, Key);
   // signing bytes are the blake2b256 hash digest of the message CID
   blake.blake2bUpdate(blakeDigestCtx, messageCid);
   return right(blake.blake2bFinal(blakeDigestCtx));
 }
 
-// const getCid = (message: LotusMessage): string => {
-//   const Key = null; // optional key, leave null
-//   const OutputLength = 32; // output length in bytes
-
-//   const cborLotusMessage = serializeLotusMessage(message);
-
-//   const blakeCidCtx = blake.blake2bInit(OutputLength, Key);
-//   // get CID of message by hashing cbor serialisation with blake2b 256bits
-//   blake.blake2bUpdate(blakeCidCtx, cborLotusMessage);
-//   const messageCid = Buffer.concat([cidPrefix, blake.blake2bFinal(blakeCidCtx)]);
-// }
-
-const serializeLotusMessage = (lotusMessage: LotusMessage): Either<Error, Uint8Array> => {
+export const serializeLotusMessage = (lotusMessage: LotusMessage): Either<Error, string> => {
 
   const toEitherBytes = addressStringToBytes(lotusMessage.to);
   if (isLeft(toEitherBytes)) return toEitherBytes;
@@ -237,10 +222,12 @@ const serializeLotusMessage = (lotusMessage: LotusMessage): Either<Error, Uint8A
     lotusMessage.gasLimit,
     gasFeeCapBytes,
     gasPremiumBytes,
-    Buffer.from(lotusMessage.params, 'base64')
+    lotusMessage.method,
+    Buffer.from("", 'base64')
   ]
 
-  return right(cborDag.serialize(messageToSerialize));
+  return right(Buffer.from(
+    cborDag.serialize(messageToSerialize)).toString('hex'));
 }
 
 const isValidFilecoinDenomination = (checkString: string): boolean => {
