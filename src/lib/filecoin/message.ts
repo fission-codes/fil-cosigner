@@ -1,5 +1,6 @@
 import BigNumber from 'bignumber.js';
-import { Either, left, right, isLeft } from "fp-ts/lib/Either";
+import { Either, left, right, isLeft, fold } from 'fp-ts/lib/Either';
+import { pipe } from 'fp-ts/function';
 import { validateAddressString } from '@glif/filecoin-address';
 // import { encode } from '@glif/filecoin-address'
 import * as cborDag from 'ipld-dag-cbor/src/util';
@@ -7,8 +8,7 @@ import * as cborDag from 'ipld-dag-cbor/src/util';
 // examine if any value in switching over
 import  * as blake from 'blakejs/blake2b.js';
 import lowercaseKeys from 'lowercase-keys';
-import { BlsSigningBytes } from '../crypto/bls12-381/operations';
-import base32Encode from 'base32-encode';
+// import base32Encode from 'base32-encode';
 import { addressStringToBytes, attoFilStringToBytes } from './utils';
 // TODO: remove CID from package.json if still unused
 
@@ -24,6 +24,8 @@ const messageVersion = 0;
 const cidPrefix = Buffer.from([0x01, 0x71, 0xa0, 0xe4, 0x02, 0x20]);
 export const secpSignatureType = 0;
 export const blsSignatureType = 1;
+
+export type messageDigestBytes = Uint8Array;
 
 export class InvalidLotusMessage extends Error {}
 
@@ -176,8 +178,8 @@ export const castToLotusMessage = (inputMessage: any): Either<InvalidLotusMessag
  * ipld-dag-cbor serializes it to obtain the digest of the CID bytes
  * which are used for signing.
  */
-export const signingBytesLotusMessage =
-  (message: LotusMessage): Either<Error, BlsSigningBytes> => {
+export const messageDigestLotusMessage =
+  (message: LotusMessage): Either<Error, messageDigestBytes> => {
   const Key = null; // optional key, leave null
   const OutputLength = 32; // output length in bytes
 
@@ -200,6 +202,17 @@ export const signingBytesLotusMessage =
 }
 
 export const serializeLotusMessage = (lotusMessage: LotusMessage): Either<Error, string> => {
+  return pipe(serializeLotusMessageBytes(lotusMessage), fold(
+    (e: Error): Either<Error, string> => {
+      return left(e);
+    },
+    (serializedBytes: Uint8Array): Either<Error, string> => {
+      return right((Buffer.from(serializedBytes)).toString('hex'));
+    }
+  ));
+}
+
+export const serializeLotusMessageBytes = (lotusMessage: LotusMessage): Either<Error, Uint8Array> => {
 
   const toEitherBytes = addressStringToBytes(lotusMessage.to);
   if (isLeft(toEitherBytes)) return toEitherBytes;
@@ -226,9 +239,12 @@ export const serializeLotusMessage = (lotusMessage: LotusMessage): Either<Error,
     Buffer.from("", 'base64')
   ]
 
-  return right(Buffer.from(
-    cborDag.serialize(messageToSerialize)).toString('hex'));
+  return right(cborDag.serialize(messageToSerialize));
 }
+
+// const messageCid = (lotusMessage: LotusMessage): => {
+
+// }
 
 const isValidFilecoinDenomination = (checkString: string): boolean => {
   const valueCheck = new BigNumber(checkString);

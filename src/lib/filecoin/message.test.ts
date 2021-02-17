@@ -1,6 +1,6 @@
 import {
   castToLotusMessage,
-  signingBytesLotusMessage,
+  messageDigestLotusMessage,
   serializeLotusMessage,
   InvalidLotusMessage,
   LotusMessage } from './message';
