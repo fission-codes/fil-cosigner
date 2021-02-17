@@ -8,6 +8,7 @@ export const createKeyPair = (req: Request, res: Response): void => {
     return
   } else if (typeof publicKey !== 'string') {
     res.status(400).send('Ill-formatted param: `publicKey` should be a string')
+    return
   }
   res.status(200).send({ publicKey: 'abcd123' })
 }
@@ -17,6 +18,7 @@ export const cosignMessage = (req: Request, res: Response): void => {
     // const decoded = ucan.decode(req.token)
   } catch (err) {
     res.status(401).send('Invalid UCAN')
+    return
   }
 
   const { message } = req.body
