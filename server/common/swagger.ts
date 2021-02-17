@@ -1,7 +1,7 @@
-import path from 'path';
-import middleware from 'swagger-express-middleware';
-import { Application } from 'express';
-import errorHandler from '../api/middlewares/error.handler';
+import path from 'path'
+import middleware from 'swagger-express-middleware'
+import { Application } from 'express'
+import errorHandler from '../api/middlewares/error.handler'
 
 export default function (
   app: Application,
@@ -13,19 +13,19 @@ export default function (
       app,
       function (err: Error, middleware) {
         if (err) {
-          return reject(err);
+          return reject(err)
         }
         // Enable Express' case-sensitive and strict options
         // (so "/entities", "/Entities", and "/Entities/" are all different)
-        app.enable('case sensitive routing');
-        app.enable('strict routing');
+        app.enable('case sensitive routing')
+        app.enable('strict routing')
 
-        app.use(middleware.metadata());
+        app.use(middleware.metadata())
         app.use(
           middleware.files(app, {
             apiPath: process.env.SWAGGER_API_SPEC,
           })
-        );
+        )
 
         app.use(
           middleware.parseRequest({
@@ -38,18 +38,19 @@ export default function (
               limit: process.env.REQUEST_LIMIT,
             },
           })
-        );
+        )
 
         // These two middleware don't have any options (yet)
-        app.use(middleware.CORS(), middleware.validateRequest());
+        app.use(middleware.CORS())
+        // app.use(middleware.CORS(), middleware.validateRequest())
 
-        routes(app);
+        routes(app)
 
         // eslint-disable-next-line no-unused-vars, no-shadow
-        app.use(errorHandler);
+        app.use(errorHandler)
 
-        resolve();
+        resolve()
       }
-    );
-  });
+    )
+  })
 }
