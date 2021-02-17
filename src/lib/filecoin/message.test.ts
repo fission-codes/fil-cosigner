@@ -3,7 +3,8 @@ import {
   messageDigestLotusMessage,
   serializeLotusMessage,
   InvalidLotusMessage,
-  LotusMessage } from './message';
+  LotusMessage,
+  MessageDigestBytes } from './message';
 import { BigNumber } from 'bignumber.js';
 import { Either, isLeft, isRight, fold, getOrElseW } from "fp-ts/lib/Either";
 import { pipe } from 'fp-ts/function';
@@ -68,28 +69,34 @@ describe('serialize a Lotus Message', () => {
           (e: Error): void => {
             assert(false, 'expected serialization');
           },
-          (ser: string): void => {
-            assert(ser === testVector[0].cbor, 'failed to match serialisation');
+          (serialised: string): void => {
+            assert(serialised === testVector[0].cbor, 'failed to match serialisation');
           }));
       }));
   });
 });
 
 
-describe('signing bytes of a Lotus Message', () => {
+describe('message digest of a Lotus Message', () => {
   // load test data
   const testVector = JSON.parse(
-    readFileSync('./test-vectors/filecoin/getCid.json').toString());
+    readFileSync('./test-vectors/filecoin/messages.json').toString());
 
-  it.skip('should marshal correct bytes', () => {
-    pipe(castToLotusMessage(testVector.signed_message.message), fold(
+  it('should marshal and return correct digest', () => {
+    pipe(castToLotusMessage(testVector[1].message), fold(
       (_error: InvalidLotusMessage): void => {
         assert(false, 'expected valid Lotus Message');
       },
       (lotusMessage: LotusMessage): void => {
-        // console.log(lotusMessage);
-        // console.log(signingBytesLotusMessage(lotusMessage));
-        assert(false, 'uncompleted')
+        pipe(messageDigestLotusMessage(lotusMessage), fold(
+          (e: Error): void => {
+            assert(false, 'expected digest');
+          },
+          (digest: MessageDigestBytes): void => {
+            console.log('beaver3 ' + (Buffer.from(digest)).toString('hex'));
+            // assert(ser === testVector[0].cbor, 'failed to match serialisation');
+          }
+        ));
       }
     ));
   });

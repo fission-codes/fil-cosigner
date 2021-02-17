@@ -8,7 +8,7 @@ import * as cborDag from 'ipld-dag-cbor/src/util';
 // examine if any value in switching over
 import  * as blake from 'blakejs/blake2b.js';
 import lowercaseKeys from 'lowercase-keys';
-// import base32Encode from 'base32-encode';
+import base32Encode from 'base32-encode';
 import { addressStringToBytes, attoFilStringToBytes } from './utils';
 // TODO: remove CID from package.json if still unused
 
@@ -25,7 +25,7 @@ const cidPrefix = Buffer.from([0x01, 0x71, 0xa0, 0xe4, 0x02, 0x20]);
 export const secpSignatureType = 0;
 export const blsSignatureType = 1;
 
-export type messageDigestBytes = Uint8Array;
+export type MessageDigestBytes = Uint8Array;
 
 export class InvalidLotusMessage extends Error {}
 
@@ -179,11 +179,11 @@ export const castToLotusMessage = (inputMessage: any): Either<InvalidLotusMessag
  * which are used for signing.
  */
 export const messageDigestLotusMessage =
-  (message: LotusMessage): Either<Error, messageDigestBytes> => {
+  (message: LotusMessage): Either<Error, MessageDigestBytes> => {
   const Key = null; // optional key, leave null
   const OutputLength = 32; // output length in bytes
 
-  const eitherCborEncodedLotusMessage = serializeLotusMessage(message);
+  const eitherCborEncodedLotusMessage = serializeLotusMessageBytes(message);
   if (isLeft(eitherCborEncodedLotusMessage)) return eitherCborEncodedLotusMessage;
   const cborEncodedLotusMessage = eitherCborEncodedLotusMessage.right;
 
@@ -192,8 +192,6 @@ export const messageDigestLotusMessage =
   blake.blake2bUpdate(blakeCidCtx, cborEncodedLotusMessage);
   const hashDigest = blake.blake2bFinal(blakeCidCtx);
   const messageCid = Buffer.concat([cidPrefix, hashDigest]);
-
-  // console.log('cid ' + base32Encode(messageCid, "RFC4648", { padding: false }).toLowerCase());
 
   const blakeDigestCtx = blake.blake2bInit(OutputLength, Key);
   // signing bytes are the blake2b256 hash digest of the message CID
