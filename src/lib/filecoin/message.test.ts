@@ -11,6 +11,7 @@ import { pipe } from 'fp-ts/function';
 import { readFileSync } from 'fs';
 import { assert } from 'chai';
 
+// load test data
 const incompleteBaseLotusMessagObject = {
   // version: 0,
   to: 't03832874859695014541',
@@ -24,23 +25,13 @@ const incompleteBaseLotusMessagObject = {
   params: ''
 }
 
-const baseLotusMessagObject = {
-  version: 0,
-  to: 't03832874859695014541',
-  from: 't1pyfq7dg6sq65acyomqvzvbgwni4zllglqffw5dy',
-  nonce: 10,
-  value: '11416382733294334924',
-  method: 0,
-  gasFeeCap: '1',
-  gasPremium: '1',
-  gasLimit: 123,
-  params: ''
-}
+const testVectorMessages = JSON.parse(
+  readFileSync('./test-vectors/filecoin/messages.json').toString());
 
 describe('constructing a Lotus Message', () => {
   describe('valid structures should cast', () => {
     it('should construct valid Lotus Message', () => {
-      assert((isRight(castToLotusMessage(baseLotusMessagObject))),
+      assert((isRight(castToLotusMessage(testVectorMessages[0].message))),
         'expected valid Lotus Message');
     });
   });
@@ -55,12 +46,9 @@ describe('constructing a Lotus Message', () => {
 });
 
 describe('serialize a Lotus Message', () => {
-  // load test data
-  const testVector = JSON.parse(
-    readFileSync('./test-vectors/filecoin/messages.json').toString());
 
   it('should serialize a Lotus Message', () => {
-    pipe(castToLotusMessage(testVector[0].message), fold(
+    pipe(castToLotusMessage(testVectorMessages[0].message), fold(
       (_error: InvalidLotusMessage): void => {
         assert(false, 'expected valid Lotus Message');
       },
@@ -70,7 +58,7 @@ describe('serialize a Lotus Message', () => {
             assert(false, 'expected serialization');
           },
           (serialised: string): void => {
-            assert(serialised === testVector[0].cbor, 'failed to match serialisation');
+            assert(serialised === testVectorMessages[0].cbor, 'failed to match serialisation');
           }));
       }));
   });
@@ -78,12 +66,9 @@ describe('serialize a Lotus Message', () => {
 
 
 describe('message digest of a Lotus Message', () => {
-  // load test data
-  const testVector = JSON.parse(
-    readFileSync('./test-vectors/filecoin/messages.json').toString());
 
   it('should marshal and return correct digest', () => {
-    pipe(castToLotusMessage(testVector[1].message), fold(
+    pipe(castToLotusMessage(testVectorMessages[1].message), fold(
       (_error: InvalidLotusMessage): void => {
         assert(false, 'expected valid Lotus Message');
       },
@@ -93,8 +78,9 @@ describe('message digest of a Lotus Message', () => {
             assert(false, 'expected digest');
           },
           (digest: MessageDigestBytes): void => {
-            console.log('beaver3 ' + (Buffer.from(digest)).toString('hex'));
-            // assert(ser === testVector[0].cbor, 'failed to match serialisation');
+            assert(
+              (Buffer.from(digest)).toString('hex') === testVectorMessages[1].digest,
+              'failed to match digest');
           }
         ));
       }
