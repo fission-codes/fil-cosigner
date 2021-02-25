@@ -1,6 +1,7 @@
 import BigNumber from 'bignumber.js';
 import { Either, left, right, isLeft, fold } from 'fp-ts/lib/Either';
 import { pipe } from 'fp-ts/function';
+import { TaskEither, leftTask } from 'fp-ts/lib/TaskEither';
 import { validateAddressString } from '@glif/filecoin-address';
 // import { encode } from '@glif/filecoin-address'
 import * as cborDag from 'ipld-dag-cbor/src/util';
@@ -9,6 +10,12 @@ import * as cborDag from 'ipld-dag-cbor/src/util';
 import  * as blake from 'blakejs/blake2b.js';
 import lowercaseKeys from 'lowercase-keys';
 import base32Encode from 'base32-encode';
+import {
+  BlsPrivateKey,
+  BlsPublicKey,
+  blsSign,
+  blsVerify,
+  getPublicKey } from '../crypto/bls12-381/operations';
 import { addressStringToBytes, attoFilStringToBytes } from './utils';
 // TODO: remove CID from package.json if still unused
 
@@ -174,9 +181,9 @@ export const castToLotusMessage = (inputMessage: any): Either<InvalidLotusMessag
 }
 
 /**
- * SigningBytesLotusMessage takes a Lotus Message, lower-cases the keys,
- * ipld-dag-cbor serializes it to obtain the digest of the CID bytes
- * which are used for signing.
+ * messageDigestLotusMessage takes a Lotus Message,
+ * ipld-dag-cbor serializes it to obtain the digest of the CID bytes,
+ * which in turn is hashed to obtain the digest used for signing.
  */
 export const messageDigestLotusMessage =
   (message: LotusMessage): Either<Error, MessageDigestBytes> => {
@@ -234,15 +241,33 @@ export const serializeLotusMessageBytes = (lotusMessage: LotusMessage): Either<E
     gasFeeCapBytes,
     gasPremiumBytes,
     lotusMessage.method,
-    Buffer.from("", 'base64')
+    Buffer.from(lotusMessage.params, 'base64')
   ]
 
   return right(cborDag.serialize(messageToSerialize));
 }
 
-// const messageCid = (lotusMessage: LotusMessage): => {
+export const verify = async (
+  signedLotusMessage: SignedLotusMessage): Promise<boolean> => {
 
-// }
+  // return pipe(messageDigestLotusMessage(signedLotusMessage), fold(
+  //   (e: Error): Promise<boolean> => {
+  //     return Promise.resolve(false);
+  //   },
+  //   (digest: MessageDigestBytes): Promise<boolean> => {
+  //     return blsVerify(
+  //       signedLotusMessage.signatureBytes,
+  //       digest,
+  //       signedLotusMessage.from)
+  //   }
+  // )
+  // ;
+  // return blsVerify(
+  //   cosignedLotusMessage.signatureBytes,
+  //   signingBytes,
+  //   cosignedLotusMessage.blsPublicKey);
+  return false
+}
 
 const isValidFilecoinDenomination = (checkString: string): boolean => {
   const valueCheck = new BigNumber(checkString);

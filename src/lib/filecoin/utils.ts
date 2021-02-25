@@ -23,6 +23,11 @@ export const addressStringToBytes = (address: string): Either<Error, Buffer> => 
     case Protocol.ID: {
       // TODO: in glifio address length is max 22 char; in zondax max 18 char; resolve
       if (address.length > 22) return left(new Error('Invalid ID address length'));
+      const testArray: Uint8Array = new Uint8Array(address.length - 3);
+      const addressId: ArrayBuffer = leb.unsigned.encode(address.substr(2));
+      testArray.set(new Uint8Array([0]), 0);
+      testArray.set(new Uint8Array(addressId), 1);
+
       return right(Buffer.concat([
         Buffer.from(`0${protocolIndicator}`, 'hex'),
         Buffer.from(leb.unsigned.encode(address.substr(2))),
@@ -60,12 +65,15 @@ export const addressStringToBytes = (address: string): Either<Error, Buffer> => 
     Buffer.from(`0${protocolIndicator}`, 'hex'),
     Buffer.from(payload)]);
 
-  // if (checksumFn(bytesAddress).toString() !== checksum.toString()) {
+  // TODO: correct this checksum assertion; it fails currently (at least on the testvectors)
+  // if (checksumFn(bytesAddress).toString('hex') !== checksum.toString()) {
   //   return left(new Error('invalid checksum for address'));
   // }
 
   return right(bytesAddress);
 }
+
+// export const publicKeyFromAddress = (address: string): Either<Error, PublicKey>
 
 export const attoFilStringToBytes = (attoFilValue: string): Uint8Array => {
   if (attoFilValue === '0') {
@@ -83,4 +91,37 @@ export const attoFilStringToBytes = (attoFilValue: string): Uint8Array => {
 
 const checksumFn = (payload: Uint8Array): Uint8Array => {
   return blake2b(payload, null, 4);
+}
+
+/**
+ * Convert a hex string to a Uint8Array.
+ *
+ * @param {string} hexString - hex representation of bytes
+ * @return {Uint8Array} - The bytes in a Uint8Array.
+ */
+const hexStringToBytes = (hexString: string): Uint8Array => {
+  // remove the leading 0x
+  hexString = hexString.replace(/^0x/, '');
+
+  // ensure even number of characters
+  if (hexString.length % 2 != 0) {
+      throw new Error('WARNING: expecting an even number of characters in the hexString');
+  }
+
+  // check for some non-hex characters
+  const nonHexChar = hexString.match(/[G-Z\s]/i);
+  if (nonHexChar) {
+      throw new Error('WARNING: found non-hex characters: '+ nonHexChar);
+  }
+
+  // split the string into pairs of octets
+  const pairs = hexString.match(/[\dA-F]{2}/gi);
+
+  // convert the octets to integers
+  const integers = pairs.map(function(s) {
+      return parseInt(s, 16);
+  });
+
+  var array = new Uint8Array(integers);
+  return array;
 }

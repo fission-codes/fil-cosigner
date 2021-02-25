@@ -46,19 +46,20 @@ describe('constructing a Lotus Message', () => {
 });
 
 describe('serialize a Lotus Message', () => {
-
   it('should serialize a Lotus Message', () => {
-    pipe(castToLotusMessage(testVectorMessages[0].message), fold(
+    pipe(castToLotusMessage(testVectorMessages[2].message), fold(
       (_error: InvalidLotusMessage): void => {
         assert(false, 'expected valid Lotus Message');
       },
       (lotusMessage: LotusMessage): void => {
         pipe(serializeLotusMessage(lotusMessage), fold(
           (e: Error): void => {
-            assert(false, 'expected serialization');
+            assert(false, 'expected serialization;' + e.message);
           },
           (serialised: string): void => {
-            assert(serialised === testVectorMessages[0].cbor, 'failed to match serialisation');
+            console.log(serialised);
+            console.log(testVectorMessages[2].cbor)
+            assert(serialised === testVectorMessages[2].cbor, 'failed to match serialisation');
           }));
       }));
   });
@@ -66,7 +67,6 @@ describe('serialize a Lotus Message', () => {
 
 
 describe('message digest of a Lotus Message', () => {
-
   it('should marshal and return correct digest', () => {
     pipe(castToLotusMessage(testVectorMessages[1].message), fold(
       (_error: InvalidLotusMessage): void => {
@@ -87,6 +87,12 @@ describe('message digest of a Lotus Message', () => {
     ));
   });
 });
+
+// describe('cosign a Lotus Message', () => {
+//   it('should cosign a Lotus Message', () => {
+//     pipe()
+//   });
+// });
 
 const assertInvalidLotusMessage = (
   expectedError: string,
