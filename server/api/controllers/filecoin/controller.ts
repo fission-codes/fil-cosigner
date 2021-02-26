@@ -3,7 +3,8 @@ import ucan from 'webnative/ucan'
 import * as bls from 'noble-bls12-381'
 import cbor from 'borc'
 
-const DUMMY_PRIVATE_KEY = '67d53f170b908cabb9eb326c3c337762d59289a8fec79f7bc9254b584b73265c'
+const DUMMY_PRIVATE_KEY =
+  '67d53f170b908cabb9eb326c3c337762d59289a8fec79f7bc9254b584b73265c'
 
 export const createKeyPair = (req: Request, res: Response): void => {
   const { publicKey } = req.body
@@ -41,4 +42,20 @@ export const cosignMessage = async (
   const serialized = cbor.encode(message)
   const sig = await bls.sign(serialized, DUMMY_PRIVATE_KEY)
   res.status(200).send({ sig: sig })
+}
+
+export const getBalances = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  // const address = req.params.address
+  res.status(200).send({ personal: 10, provider: 250.3 })
+}
+
+export const getProviderAddress = async (
+  _req: Request,
+  res: Response
+): Promise<void> => {
+  const address = 't1golw5yofvrksvnlxtiayovr7ptthae6n54ah6na'
+  res.status(200).send(address)
 }
