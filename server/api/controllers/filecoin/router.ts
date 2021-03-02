@@ -4,5 +4,6 @@ export default express
   .Router()
   .post('/keypair', controller.createKeyPair)
   .post('/message', controller.cosignMessage)
-  .get('/balances/:address', controller.getBalances)
+  .get('/balance/:address', controller.getBalance)
   .get('/provider/address', controller.getProviderAddress)
+  .post('/test', controller.testMsg)
