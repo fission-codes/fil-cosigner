@@ -38,6 +38,33 @@ export const getNonce = async (address: string): Promise<number> => {
   return response.data.result
 }
 
+export const validateAddress = async (address: string) => {
+  const response = await axios.post(
+    RPC_API,
+    {
+      ...request,
+      method: `Filecoin.WalletValidateAddress`,
+      params: [address],
+    },
+    AUTH
+  )
+  return response.data.result
+}
+
+export const verify = async (address: string, msg: string): Promise<any> => {
+  const response = await axios.post(
+    RPC_API,
+    {
+      ...request,
+      method: `Filecoin.WalletVerify`,
+      params: [address, msg],
+    },
+    AUTH
+  )
+  console.log(response)
+  return response.data.result
+}
+
 export const signMessage = async (address: string, msg: any): Promise<any> => {
   const response = await axios.post(
     RPC_API,
@@ -61,5 +88,6 @@ export const sendMessage = async (msg: any): Promise<any> => {
     },
     AUTH
   )
+  console.log(response.data)
   return response.data.result
 }

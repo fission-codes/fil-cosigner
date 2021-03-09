@@ -2,13 +2,14 @@ import { Request, Response } from 'express'
 // import ucan from 'webnative/ucan'
 import * as bls from 'noble-bls12-381'
 import cbor from 'borc'
-import axios from 'axios'
 import zondax from '@zondax/filecoin-signing-tools'
 import * as lotus from '../../lib/lotus'
 import filecoinAddress from '@glif/filecoin-address'
 
+const BLS_PRIVATE_KEY = 'TuuPZsVXEVp+w35968KwuRMPDUordM1k7EeKiOKsBSw='
+
 const DUMMY_PRIVATE_KEY =
-  '67d53f170b908cabb9eb326c3c337762d59289a8fec79f7bc9254b584b73265c'
+  '4eeb8f66c557115a7ec37e7debc2b0b9130f0d4a2b74cd64ec478a88e2ac052c'
 
 export const createKeyPair = (req: Request, res: Response): void => {
   const { publicKey } = req.body
@@ -53,8 +54,10 @@ export const getBalance = async (
   res: Response
 ): Promise<void> => {
   const address = req.params.address
-  const balance = await lotus.getBalance(address)
-  res.status(200).send(balance)
+  const attoFilBalance = BigInt(await lotus.getBalance(address))
+  const balance = Number(attoFilBalance / BigInt(1000000000000000)) / 1000
+
+  res.status(200).send({ balance })
 }
 
 export const getProviderAddress = async (
@@ -67,33 +70,60 @@ export const getProviderAddress = async (
 
 const LOTUS_ADDR = 't1hxbjgl7p2oexr2kckig6mkbw5t4qstjth54l2ja'
 
+// const FAKE_MSG = {
+//   Version: 0,
+//   To: 't1hxbjgl7p2oexr2kckig6mkbw5t4qstjth54l2ja',
+//   From:
+//     't3qsyutdetgkqwhh3hzdrpysnjxlqoz63iznqyf4jk3dbqzrrorq3qfgxk5ks6c2c7wjswpevze26i2gjtbera',
+//   Nonce: 0,
+//   Value: '5000000000000000000',
+//   GasLimit: 992835,
+//   GasFeeCap: '900305',
+//   GasPremium: '392510',
+//   Method: 0,
+//   Params: '',
+// }
+
 const FAKE_MSG = {
-  Version: 0,
-  To: 't3qsyutdetgkqwhh3hzdrpysnjxlqoz63iznqyf4jk3dbqzrrorq3qfgxk5ks6c2c7wjswpevze26i2gjtbera',
-  From: 't1hxbjgl7p2oexr2kckig6mkbw5t4qstjth54l2ja',
-  Nonce: 0,
-  Value: '5000000000000000000',
-  GasLimit: 992835,
-  GasFeeCap: '900305',
-  GasPremium: '392510',
-  Method: 0,
-  Params: '',
+  version: 0,
+  to: 't1hxbjgl7p2oexr2kckig6mkbw5t4qstjth54l2ja',
+  from:
+    't3qsyutdetgkqwhh3hzdrpysnjxlqoz63iznqyf4jk3dbqzrrorq3qfgxk5ks6c2c7wjswpevze26i2gjtbera',
+  nonce: 0,
+  value: '5000000000000000000',
+  gasLimit: 992835,
+  gasFeeCap: '900305',
+  gasPremium: '392510',
+  method: 0,
+  params: '',
+}
+
+export const blsPrivateToAddress = (
+  privateB64: string,
+  testNet: boolean
+): string => {
+  const key = zondax.keyRecoverBLS(privateB64, testNet)
+  const publicKeyBuffer = Buffer.from(key.public_base64, 'base64')
+  const rawAddress = filecoinAddress.newBLSAddress(publicKeyBuffer)
+  return filecoinAddress.encode('t', rawAddress)
 }
 
 export const testMsg = async (req: Request, res: Response): Promise<void> => {
-  const publicKey = bls.getPublicKey(DUMMY_PRIVATE_KEY)
-  const publicKeyBuffer = Uint8Array.from(Buffer.from(publicKey as any, 'hex'))
-  const address = filecoinAddress.newBLSAddress(publicKeyBuffer)
-  const encoded = filecoinAddress.encode('t', address)
-  console.log(encoded)
+  // console.log(zondax)
+  const address = blsPrivateToAddress(BLS_PRIVATE_KEY, true)
+  // const privKeyHex = zondax.keyRecoverBLS(BLS_PRIVATE_KEY, true).private_hexstring
+  const nonce = await lotus.getNonce(address)
 
-  const nonce = await lotus.getNonce(LOTUS_ADDR)
-  const signed = await lotus.signMessage(LOTUS_ADDR, {
+  const msg = {
     ...FAKE_MSG,
-    To: encoded,
-    Nonce: nonce,
-  })
+    nonce: nonce,
+    from: address,
+  }
+
+  const unparsed = zondax.transactionSignLotus(msg, BLS_PRIVATE_KEY)
+  const signed = JSON.parse(unparsed)
   const result = await lotus.sendMessage(signed)
+  console.log('signed: ', signed)
   console.log('RESULT: ', result)
   res.status(200).send()
 }

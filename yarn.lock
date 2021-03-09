@@ -336,6 +336,18 @@
   resolved "https://registry.yarnpkg.com/@ungap/promise-all-settled/-/promise-all-settled-1.1.2.tgz#aa58042711d6e3275dd37dc597e5d31e8c290a44"
   integrity sha512-sL/cEvJWAnClXw0wHk85/2L0G6Sj8UB0Ctc1TEMbKSsmpRosqhwj9gWgFRZSrBr2f9tiXISwNhCPmlfqUqyb9Q==
 
+"@zondax/filecoin-signing-tools@../../filecoin/fixed-filecoin-signing-tools/signer-npm/pkg":
+  version "0.2.0"
+  dependencies:
+    base32-decode "^1.0.0"
+    base32-encode "^1.1.1"
+    bip32 "^2.0.5"
+    bip39 "^3.0.2"
+    blakejs "^1.1.0"
+    ipld-dag-cbor "^0.15.3"
+    leb128 "0.0.5"
+    secp256k1 "^4.0.1"
+
 "@zondax/filecoin-signing-tools@^0.13.0":
   version "0.13.0"
   resolved "https://registry.yarnpkg.com/@zondax/filecoin-signing-tools/-/filecoin-signing-tools-0.13.0.tgz#27c9456a094aaed5f401dadd913579a70797e635"
@@ -594,6 +606,11 @@ blakejs@1.1.0, blakejs@^1.1.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/blakejs/-/blakejs-1.1.0.tgz#69df92ef953aa88ca51a32df6ab1c54a155fc7a5"
   integrity sha1-ad+S75U6qIylGjLfarHFShVfx6U=
+
+bls-wasm@^0.4.4:
+  version "0.4.4"
+  resolved "https://registry.yarnpkg.com/bls-wasm/-/bls-wasm-0.4.4.tgz#8d66e2ac00627f934aae1f434686f371c3c24152"
+  integrity sha512-aWecwBe9weKwl5Bb5jj7crSHIgyjVbgUjHeudQeKbRqC3gFHZcf1jTfLTlnCFQnzg+wJklX0GJbWvpHN5voILA==
 
 bn.js@^4.0.0, bn.js@^4.11.9:
   version "4.11.9"
@@ -1279,6 +1296,11 @@ enquirer@^2.3.5:
   integrity sha512-yjNnPr315/FjS4zIsUxYguYUPP2e1NK4d7E7ZOLiyYCcbFBiTMyID+2wvm2w6+pZ/odMA7cRkjhsPbltwBOrLg==
   dependencies:
     ansi-colors "^4.1.1"
+
+env@^0.0.2:
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/env/-/env-0.0.2.tgz#50c19f307b129a45845b6b686df5b39dd40d1cf0"
+  integrity sha1-UMGfMHsSmkWEW2tobfWzndQNHPA=
 
 err-code@^2.0.0, err-code@^2.0.3:
   version "2.0.3"
