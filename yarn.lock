@@ -348,20 +348,6 @@
     leb128 "0.0.5"
     secp256k1 "^4.0.1"
 
-"@zondax/filecoin-signing-tools@^0.13.0":
-  version "0.13.0"
-  resolved "https://registry.yarnpkg.com/@zondax/filecoin-signing-tools/-/filecoin-signing-tools-0.13.0.tgz#27c9456a094aaed5f401dadd913579a70797e635"
-  integrity sha512-U3C3xRp6yMimAFXDcTziC3hjP0IxCmMaYwyhuhc7m+fy9br7r9jX41DM6kKEgiIKrLQioCm4IjEHN9XEE4apdg==
-  dependencies:
-    base32-decode "^1.0.0"
-    base32-encode "^1.1.1"
-    bip32 "^2.0.5"
-    bip39 "^3.0.2"
-    blakejs "^1.1.0"
-    ipld-dag-cbor "^0.15.3"
-    leb128 "0.0.5"
-    secp256k1 "^4.0.1"
-
 abbrev@1:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/abbrev/-/abbrev-1.1.1.tgz#f8f2c887ad10bf67f634f005b6987fed3179aac8"

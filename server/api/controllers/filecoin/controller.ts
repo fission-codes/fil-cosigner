@@ -7,6 +7,7 @@ import * as lotus from '../../lib/lotus'
 import filecoinAddress from '@glif/filecoin-address'
 
 const BLS_PRIVATE_KEY = 'TuuPZsVXEVp+w35968KwuRMPDUordM1k7EeKiOKsBSw='
+const SECOND_KEY = 'PPQjuHt/0l4dJSVl5qOX9HEsxhdQBz+twl7nOP+MkFU='
 
 const DUMMY_PRIVATE_KEY =
   '4eeb8f66c557115a7ec37e7debc2b0b9130f0d4a2b74cd64ec478a88e2ac052c'
@@ -98,32 +99,88 @@ const FAKE_MSG = {
   params: '',
 }
 
+export const blsPrivateToPublicBuf = (
+  privateB64: string,
+  testNet: boolean
+): Buffer => {
+  const key = zondax.keyRecoverBLS(privateB64, testNet)
+  return Buffer.from(key.public_base64, 'base64')
+}
+
+export const pubKeyToAddress = (publicKey: Buffer): string => {
+  const rawAddress = filecoinAddress.newBLSAddress(publicKey)
+  return filecoinAddress.encode('t', rawAddress)
+}
+
 export const blsPrivateToAddress = (
   privateB64: string,
   testNet: boolean
 ): string => {
-  const key = zondax.keyRecoverBLS(privateB64, testNet)
-  const publicKeyBuffer = Buffer.from(key.public_base64, 'base64')
-  const rawAddress = filecoinAddress.newBLSAddress(publicKeyBuffer)
-  return filecoinAddress.encode('t', rawAddress)
+  const publicKeyBuffer = blsPrivateToPublicBuf(privateB64, testNet)
+  return pubKeyToAddress(publicKeyBuffer)
+}
+
+export const blsKeysToAggAddress = (
+  key1: string,
+  key2: string,
+  testNet: boolean
+): string => {
+  const pubkey1 = blsPrivateToPublicBuf(key1, testNet)
+  const pubkey2 = blsPrivateToPublicBuf(key1, testNet)
+  const aggPubkey = bls.aggregatePublicKeys([pubkey1, pubkey2])
+  return pubKeyToAddress(Buffer.from(aggPubkey))
 }
 
 export const testMsg = async (req: Request, res: Response): Promise<void> => {
-  // console.log(zondax)
-  const address = blsPrivateToAddress(BLS_PRIVATE_KEY, true)
+  const privKeyHex = Buffer.from(BLS_PRIVATE_KEY, 'base64').toString('hex')
+  console.log('PRIV: ', privKeyHex)
+
+  const pubKeyBuf = blsPrivateToPublicBuf(BLS_PRIVATE_KEY, true)
+  const pubKeyHex = pubKeyBuf.toString('hex')
+  console.log('PUB: ', pubKeyHex)
+
+  return
+  const aggAddress = blsKeysToAggAddress(BLS_PRIVATE_KEY, SECOND_KEY, true)
+  console.log(aggAddress)
+  // const address = blsPrivateToAddress(BLS_PRIVATE_KEY, true)
+  // const address2 = blsPrivateToAddress(SECOND_KEY, true)
   // const privKeyHex = zondax.keyRecoverBLS(BLS_PRIVATE_KEY, true).private_hexstring
-  const nonce = await lotus.getNonce(address)
+  const nonce = (await lotus.getNonce(aggAddress)) || 0
+  // console.log('NONCE: ', nonce)
 
   const msg = {
     ...FAKE_MSG,
     nonce: nonce,
-    from: address,
+    from: aggAddress,
   }
 
-  const unparsed = zondax.transactionSignLotus(msg, BLS_PRIVATE_KEY)
-  const signed = JSON.parse(unparsed)
-  const result = await lotus.sendMessage(signed)
-  console.log('signed: ', signed)
-  console.log('RESULT: ', result)
+  const unparsed1 = zondax.transactionSignLotus(msg, BLS_PRIVATE_KEY)
+  const signed1 = JSON.parse(unparsed1)
+  const unparsed2 = zondax.transactionSignLotus(msg, SECOND_KEY)
+  const signed2 = JSON.parse(unparsed2)
+
+  const sigData = [signed1, signed2].map((msg) => msg.Signature.Data)
+  try {
+    const agg = zondax.aggregateSignatures(sigData[0], sigData[1])
+    console.log('AGG: ', agg)
+  } catch (err) {
+    console.log('ERR: ', err)
+  }
+  // const aggSig = Buffer.from(bls.aggregateSignatures(sigData)).toString(
+  //   'base64'
+  // )
+  // console.log(aggSig)
+
+  // const aggMsg = {
+  //   ...signed1,
+  //   Signature: {
+  //     ...signed1.Signature,
+  //     Data: aggSig,
+  //   }
+  // }
+
+  // const result = await lotus.sendMessage(aggMsg)
+  // console.log('aggMsg: ', aggMsg)
+  // console.log('RESULT: ', result)
   res.status(200).send()
 }
