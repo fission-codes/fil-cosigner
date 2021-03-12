@@ -2,9 +2,19 @@ import zondax from '@zondax/filecoin-signing-tools'
 import filecoinAddress from '@glif/filecoin-address'
 import * as bls from 'noble-bls12-381'
 
-export const privToPubBuf = (privateB64: string, testNet: boolean): Buffer => {
-  const key = zondax.keyRecoverBLS(privateB64, testNet)
-  return Buffer.from(key.public_base64, 'base64')
+export const hexToBase64 = (hex: string): string => {
+  return Buffer.from(hex, 'hex').toString('base64')
+}
+
+export const privToPub = (privateHex: string): string => {
+  const privateB64 = hexToBase64(privateHex)
+  const key = zondax.keyRecoverBLS(privateB64, true)
+  return key.public_hexstring
+}
+
+export const privToPubBuf = (privateHex: string): Buffer => {
+  const pubkey = privToPub(privateHex)
+  return Buffer.from(pubkey, 'hex')
 }
 
 export const pubBufToAddress = (publicKey: Buffer): string => {
@@ -12,18 +22,27 @@ export const pubBufToAddress = (publicKey: Buffer): string => {
   return filecoinAddress.encode('t', rawAddress)
 }
 
-export const privToAddress = (privateB64: string, testNet: boolean): string => {
-  const publicKeyBuffer = privToPubBuf(privateB64, testNet)
+export const privToAddress = (privateHex: string): string => {
+  const publicKeyBuffer = privToPubBuf(privateHex)
   return pubBufToAddress(publicKeyBuffer)
 }
 
-export const toAggAddress = (
-  key1B64: string,
-  key2B64: string,
-  testNet: boolean
+export const privToAggAddress = (key1: string, key2: string): string => {
+  const pubkey1 = privToPubBuf(key1)
+  const pubkey2 = privToPubBuf(key2)
+  return pubBufToAggAddress(pubkey1, pubkey2)
+}
+
+export const pubToAggAddress = (key1: string, key2: string): string => {
+  const pubkey1 = Buffer.from(key1, 'hex')
+  const pubkey2 = Buffer.from(key2, 'hex')
+  return pubBufToAggAddress(pubkey1, pubkey2)
+}
+
+export const pubBufToAggAddress = (
+  pubkey1: Buffer,
+  pubkey2: Buffer
 ): string => {
-  const pubkey1 = privToPubBuf(key1B64, testNet)
-  const pubkey2 = privToPubBuf(key2B64, testNet)
   const aggPubkey = bls.aggregatePublicKeys([pubkey1, pubkey2])
   return pubBufToAddress(Buffer.from(aggPubkey))
 }

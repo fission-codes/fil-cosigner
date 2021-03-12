@@ -5,11 +5,14 @@ import zondax from '@zondax/filecoin-signing-tools'
 import * as lotus from '../../lib/lotus'
 import * as keys from '../../lib/keys'
 
-const BLS_PRIVATE_KEY = 'TuuPZsVXEVp+w35968KwuRMPDUordM1k7EeKiOKsBSw='
-const SECOND_KEY = 'PPQjuHt/0l4dJSVl5qOX9HEsxhdQBz+twl7nOP+MkFU='
-
-const DUMMY_PRIVATE_KEY =
+// const BLS_PRIVATE_KEY = 'TuuPZsVXEVp+w35968KwuRMPDUordM1k7EeKiOKsBSw='
+const SERVER_PRIVATE_KEY =
   '4eeb8f66c557115a7ec37e7debc2b0b9130f0d4a2b74cd64ec478a88e2ac052c'
+const SERVER_PUBLIC_KEY = keys.privToPub(SERVER_PRIVATE_KEY)
+
+// const SECOND_KEY = 'PPQjuHt/0l4dJSVl5qOX9HEsxhdQBz+twl7nOP+MkFU='
+const SECOND_KEY =
+  '3cf423b87b7fd25e1d252565e6a397f4712cc61750073fadc25ee738ff8c9055'
 
 export const createKeyPair = (req: Request, res: Response): void => {
   const { publicKey } = req.body
@@ -20,7 +23,7 @@ export const createKeyPair = (req: Request, res: Response): void => {
     res.status(400).send('Ill-formatted param: `publicKey` should be a string')
     return
   }
-  const fissionPubKey = bls.getPublicKey(DUMMY_PRIVATE_KEY)
+  const fissionPubKey = bls.getPublicKey(SERVER_PRIVATE_KEY)
   res.status(200).send({ publicKey: fissionPubKey })
 }
 
@@ -45,7 +48,7 @@ export const cosignMessage = async (
   }
 
   const serialized = cbor.encode(message)
-  const sig = await bls.sign(serialized, DUMMY_PRIVATE_KEY)
+  const sig = await bls.sign(serialized, SERVER_PRIVATE_KEY)
   res.status(200).send({ sig: sig })
 }
 
@@ -69,6 +72,45 @@ export const getProviderAddress = async (
   res.status(200).send(address)
 }
 
+export const formatMsg = async (req: Request, res: Response): Promise<void> => {
+  const { to, ownPubKey, amount } = req.query
+  if (
+    !to ||
+    !ownPubKey ||
+    !amount ||
+    typeof to !== 'string' ||
+    typeof ownPubKey !== 'string' ||
+    typeof amount !== 'string'
+  ) {
+    res.status(400).send('Bad params')
+    return
+  }
+  const amountNum = parseFloat(amount)
+  if (typeof amountNum !== 'number') {
+    res.status(400).send('Bad params')
+    return
+  }
+
+  const attoAmount = BigInt(amountNum * 1000) * BigInt(1000000000000000)
+  const from = keys.pubToAggAddress(SERVER_PUBLIC_KEY, ownPubKey)
+  const nonce = (await lotus.getNonce(from)) || 0
+
+  const formatted = {
+    version: 0,
+    to,
+    from,
+    nonce,
+    value: attoAmount.toString(),
+    gasLimit: 0,
+    gasFeeCap: '0',
+    gasPremium: '0',
+    method: 0,
+    params: '',
+  }
+
+  res.status(200).send({ formatted })
+}
+
 const FAKE_MSG = {
   version: 0,
   to: 't1hxbjgl7p2oexr2kckig6mkbw5t4qstjth54l2ja',
@@ -83,7 +125,7 @@ const FAKE_MSG = {
   params: '',
 }
 export const testMsg = async (req: Request, res: Response): Promise<void> => {
-  const aggAddress = keys.toAggAddress(BLS_PRIVATE_KEY, SECOND_KEY, true)
+  const aggAddress = keys.pubToAggAddress(SERVER_PUBLIC_KEY, SECOND_KEY)
   console.log(aggAddress)
 
   let nonce
@@ -99,7 +141,7 @@ export const testMsg = async (req: Request, res: Response): Promise<void> => {
     from: aggAddress,
   }
 
-  const unparsed1 = zondax.transactionSignLotus(msg, BLS_PRIVATE_KEY)
+  const unparsed1 = zondax.transactionSignLotus(msg, SERVER_PRIVATE_KEY)
   const signed1 = JSON.parse(unparsed1)
   const unparsed2 = zondax.transactionSignLotus(msg, SECOND_KEY)
   const signed2 = JSON.parse(unparsed2)
