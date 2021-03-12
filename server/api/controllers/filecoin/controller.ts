@@ -96,19 +96,21 @@ export const formatMsg = async (req: Request, res: Response): Promise<void> => {
   const nonce = (await lotus.getNonce(from)) || 0
 
   const formatted = {
-    version: 0,
-    to,
-    from,
-    nonce,
-    value: attoAmount.toString(),
-    gasLimit: 0,
-    gasFeeCap: '0',
-    gasPremium: '0',
-    method: 0,
-    params: '',
+    Version: 0,
+    To: to,
+    From: from,
+    Nonce: nonce,
+    Value: attoAmount.toString(),
+    GasLimit: 0,
+    GasFeeCap: '0',
+    GasPremium: '0',
+    Method: 0,
+    Params: '',
   }
 
-  res.status(200).send({ formatted })
+  const message = await lotus.estimateGas(formatted)
+
+  res.status(200).send({ message })
 }
 
 const FAKE_MSG = {

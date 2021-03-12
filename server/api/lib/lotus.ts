@@ -15,79 +15,43 @@ const AUTH = {
   },
 }
 
-export const getBalance = async (address: string): Promise<string> => {
-  const response = await axios.post(RPC_API, {
-    ...request,
-    method: `Filecoin.WalletBalance`,
-    params: [address],
-  })
-  console.log(response.data)
+export const sendReq = async (method: string, params: any[]): Promise<any> => {
+  const response = await axios.post(
+    RPC_API,
+    {
+      ...request,
+      method: `Filecoin.${method}`,
+      params,
+    },
+    AUTH
+  )
   return response.data.result
+}
+
+export const getBalance = async (address: string): Promise<string> => {
+  return sendReq('WalletBalance', [address])
 }
 
 export const getNonce = async (address: string): Promise<number> => {
-  const response = await axios.post(
-    RPC_API,
-    {
-      ...request,
-      method: `Filecoin.MpoolGetNonce`,
-      params: [address],
-    },
-    AUTH
-  )
-  return response.data.result
+  return sendReq('MpoolGetNonce', [address])
 }
 
 export const validateAddress = async (address: string) => {
-  const response = await axios.post(
-    RPC_API,
-    {
-      ...request,
-      method: `Filecoin.WalletValidateAddress`,
-      params: [address],
-    },
-    AUTH
-  )
-  return response.data.result
+  return sendReq('WalletValidateAddress', [address])
 }
 
 export const verify = async (address: string, msg: string): Promise<any> => {
-  const response = await axios.post(
-    RPC_API,
-    {
-      ...request,
-      method: `Filecoin.WalletVerify`,
-      params: [address, msg],
-    },
-    AUTH
-  )
-  console.log(response)
-  return response.data.result
+  return sendReq('WalletVerify', [address, msg])
 }
 
 export const signMessage = async (address: string, msg: any): Promise<any> => {
-  const response = await axios.post(
-    RPC_API,
-    {
-      ...request,
-      method: `Filecoin.WalletSignMessage`,
-      params: [address, msg],
-    },
-    AUTH
-  )
-  return response.data.result
+  return sendReq('WalletSignMessage', [address, msg])
 }
 
 export const sendMessage = async (msg: any): Promise<any> => {
-  const response = await axios.post(
-    RPC_API,
-    {
-      ...request,
-      method: `Filecoin.MpoolPush`,
-      params: [msg],
-    },
-    AUTH
-  )
-  console.log(response.data)
-  return response.data.result
+  return sendReq('MpoolPush', [msg])
+}
+
+export const estimateGas = async (msg: any): Promise<any> => {
+  return sendReq('GasEstimateMessageGas', [msg, { MaxFee: '0' }, []])
 }
