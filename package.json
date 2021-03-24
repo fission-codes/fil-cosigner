@@ -15,8 +15,8 @@
   },
   "dependencies": {
     "@glif/filecoin-address": "^1.1.0-beta.18",
-    "@zondax/filecoin-signing-tools": "../../filecoin/fixed-filecoin-signing-tools/signer-npm/pkg",
     "axios": "^0.21.1",
+    "base32-decode": "^1.0.0",
     "blakejs": "^1.1.0",
     "bls-wasm": "^0.4.4",
     "body-parser": "^1.19.0",
@@ -26,10 +26,12 @@
     "env": "^0.0.2",
     "express": "^4.17.1",
     "express-bearer-token": "^2.4.0",
+    "fission-filecoin-signing-tools": "^0.2.0",
     "noble-bls12-381": "^0.9.0",
     "pino": "^6.8.0",
     "swagger-express-middleware": "^4.0.2",
-    "webnative": "^0.21.4"
+    "webnative": "^0.21.4",
+    "webnative-filecoin": "../webnative-filecoin"
   },
   "devDependencies": {
     "@types/chai": "^4.2.14",

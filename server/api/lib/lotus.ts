@@ -55,3 +55,8 @@ export const sendMessage = async (msg: any): Promise<any> => {
 export const estimateGas = async (msg: any): Promise<any> => {
   return sendReq('GasEstimateMessageGas', [msg, { MaxFee: '0' }, []])
 }
+
+export const sign = async (address: string, msg: string): Promise<any> => {
+  return sendReq('WalletSign', [address, msg])
+
+}
