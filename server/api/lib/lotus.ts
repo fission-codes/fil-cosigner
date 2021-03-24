@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { CID } from 'webnative/ipfs'
 
 const RPC_API = 'http://127.0.0.1:1234/rpc/v0'
 const request = {
@@ -58,5 +59,12 @@ export const estimateGas = async (msg: any): Promise<any> => {
 
 export const sign = async (address: string, msg: string): Promise<any> => {
   return sendReq('WalletSign', [address, msg])
+}
 
+export const waitMsg = async (cid: CID, threshold = 2): Promise<any> => {
+  return sendReq('StateWaitMsg', [{ '/': cid }, threshold])
+}
+
+export const getMsg = async (cid: CID): Promise<any> => {
+  return sendReq('ChainGetMessage', [{ '/': cid }])
 }

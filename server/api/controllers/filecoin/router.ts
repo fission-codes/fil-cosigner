@@ -9,3 +9,4 @@ export default express
   .get('/balance/:address', controller.getBalance)
   .get('/provider/address', controller.getProviderAddress)
   .post('/message', controller.cosignMessage)
+  .get('/waitmsg/:cid', controller.waitForReceipt)
