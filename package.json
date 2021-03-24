@@ -14,9 +14,11 @@
     "test:debug": "mocha -r ts-node/register --inspect-brk test/**/*.ts --exit"
   },
   "dependencies": {
+    "@fission/filecoin-signing-tools": "../../filecoin/filecoin-signing-tools/signer-npm/pkg",
     "@glif/filecoin-address": "^1.1.0-beta.18",
-    "@zondax/filecoin-signing-tools": "../../filecoin/fixed-filecoin-signing-tools/signer-npm/pkg",
+    "@zondax/filecoin-signing-tools": "^0.13.0",
     "axios": "^0.21.1",
+    "base32-decode": "^1.0.0",
     "blakejs": "^1.1.0",
     "bls-wasm": "^0.4.4",
     "body-parser": "^1.19.0",
