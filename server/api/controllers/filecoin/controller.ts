@@ -113,62 +113,19 @@ const getCID = (message: Buffer) => {
   return Buffer.concat([CID_PREFIX, hash])
 }
 
-const reverse = (input: string): string =>
-  input.match(/.{2}/g).reverse().join('')
-
 export const cosignMessage = async (
   req: Request,
   res: Response
 ): Promise<void> => {
-  // const msg = 'Ynl0ZSBhcnJheQ=='
-  // const signedLotus = await lotus.sign(
-  //   't3qsyutdetgkqwhh3hzdrpysnjxlqoz63iznqyf4jk3dbqzrrorq3qfgxk5ks6c2c7wjswpevze26i2gjtbera',
-  //   msg
-  // )
-  // console.log(signedLotus)
+  const message = req.params.message as any
 
-  // const privB64 = 'TuuPZsVXEVp+w35968KwuRMPDUordM1k7EeKiOKsBSw='
-  // const privHex = Buffer.from(privB64, 'base64').toString('hex')
-  // const reversed = reverse(privHex)
-  // const signedBls = await bls.sign(Buffer.from(msg, 'base64'), reversed)
-  // console.log(Buffer.from(signedBls).toString('base64'))
-
-  // const { message } = req.body
-
-  const MESSAGE = {
-    ...MESSAGE_NO_NONCE,
-    Nonce: await lotus.getNonce(MESSAGE_NO_NONCE.From),
-  }
-
-  // console.log('key: ', SERVER_PRIVATE_KEY)
-  // console.log('key: ', reverse(SERVER_PRIVATE_KEY))
-
-  // // const messageBody = message.Message
-
-  const signed = await lotus.signMessage(MESSAGE.From, MESSAGE)
-  console.log(signed)
-
-  // const signedOG = zondax.transactionSignLotus(MESSAGE, Buffer.from(SERVER_PRIVATE_KEY, 'hex'))
-  // const signatureOG = JSON.parse(signedOG).Signature.Data
-  // console.log('signatureOG: ', JSON.parse(signedOG))
-  // console.log(
-  //   'signatureOG: ',
-  //   Buffer.from(signatureOG, 'base64').toString('hex')
-  // )
-
-  // const zondaxKey = zondax.keyRecoverBLS(reverseKey, true)
-  // console.log('zondaxKey: ', zondaxKey.public_hexstring)
-
-  const reverseKey = Buffer.from(reverse(SERVER_PRIVATE_KEY), 'hex')
-  const serialized = customZondax.transactionSerializeRaw(MESSAGE)
-
+  const serialized = customZondax.transactionSerializeRaw(message)
   const digest = getCID(serialized)
 
-  const signatureBuf = await bls.sign(digest, reverseKey)
+  const signatureBuf = await bls.sign(digest, SERVER_PRIVATE_KEY)
   const signature = Buffer.from(signatureBuf).toString('base64')
-  // console.log('signature: ', Buffer.from(signature, 'base64').toString('hex'))
-  const message = {
-    Message: MESSAGE,
+  const serverSigned = {
+    Message: message,
     Signature: {
       Data: signature,
       Type: 2,
@@ -177,117 +134,20 @@ export const cosignMessage = async (
 
   console.log(message)
 
-  // const lotusSig = await lotus.sign(MESSAGE.From, digest.toString('base64'))
-  // console.log('lotusSig: ', lotusSig)
+  const aggSig = keys.aggregateSigs(
+    serverSigned.Signature.Data,
+    message.Signature.Data
+  )
 
-  // const unparsed = zondax.transactionSignLotus(messageBody, SERVER_PRIVATE_KEY)
-  // const signed = JSON.parse(unparsed)
-
-  // const aggSig = keys.aggregateSigs(
-  //   signed.Signature.Data,
-  //   message.Signature.Data
-  // )
-
-  // const aggMsg = {
-  //   ...message,
-  //   Signature: {
-  //     ...message.Signature,
-  //     Data: aggSig,
-  //   },
-  // }
-  // console.log('aggMsg: ', aggMsg)
+  const aggMsg = {
+    ...message,
+    Signature: {
+      ...message.Signature,
+      Data: aggSig,
+    },
+  }
 
   const result = await lotus.sendMessage(message)
   console.log('RESULT: ', result)
   res.status(200).send()
 }
-
-const ProtocolIndicator = {
-  ID: 0,
-  SECP256K1: 1,
-  ACTOR: 2,
-  BLS: 3,
-}
-
-const blsAddressAsBytes = (address: string): Buffer => {
-  const protocolIndicator = address[1]
-  const protocolIndicatorByte = `0${protocolIndicator}`
-  console.log(protocolIndicator)
-  if (Number(protocolIndicator) !== 3) {
-    throw new Error('Not a BLS Address')
-  }
-  const address_decoded = base32Decode(
-    address.slice(2).toUpperCase(),
-    'RFC4648'
-  )
-
-  const payload = address_decoded.slice(0, -4)
-  console.log('payload bytes: ', payload.byteLength)
-  const checksum = Buffer.from(address_decoded.slice(-4))
-
-  // if (payload.byteLength !== 20) {
-  //   throw new InvalidPayloadLength();
-  // }
-
-  const bytes_address = Buffer.concat([
-    Buffer.from(protocolIndicatorByte, 'hex'),
-    Buffer.from(payload),
-  ])
-
-  // if (getChecksum(bytes_address).toString("hex") !== checksum.toString("hex")) {
-  //   throw new InvalidChecksumAddress();
-  // }
-  return bytes_address
-}
-
-// const addressAsBytes = (address: string): Uint8Array => {
-//   let address_decoded, payload, checksum
-//   const protocolIndicator = address[1]
-//   const protocolIndicatorByte = `0${protocolIndicator}`
-//   console.log(protocolIndicator)
-
-//   switch (Number(protocolIndicator)) {
-//     case ProtocolIndicator.ID:
-//       if (address.length > 18) {
-//         throw new InvalidPayloadLength();
-//       }
-//       return Buffer.concat([
-//         Buffer.from(protocolIndicatorByte, "hex"),
-//         Buffer.from(leb.unsigned.encode(address.substr(2))),
-//       ]);
-//     case ProtocolIndicator.SECP256K1:
-//       address_decoded = base32Decode(address.slice(2).toUpperCase(), "RFC4648");
-
-//       payload = address_decoded.slice(0, -4);
-//       checksum = Buffer.from(address_decoded.slice(-4));
-
-//       if (payload.byteLength !== 20) {
-//         throw new InvalidPayloadLength();
-//       }
-//       break;
-//     case ProtocolIndicator.ACTOR:
-//       address_decoded = base32Decode(address.slice(2).toUpperCase(), "RFC4648");
-
-//       payload = address_decoded.slice(0, -4);
-//       checksum = Buffer.from(address_decoded.slice(-4));
-
-//       if (payload.byteLength !== 20) {
-//         throw new InvalidPayloadLength();
-//       }
-//       break;
-//     case ProtocolIndicator.BLS:
-//       throw new ProtocolNotSupported("BLS");
-//     default:
-//       throw new UnknownProtocolIndicator();
-//   }
-
-//   // const bytes_address = Buffer.concat([
-//   //   Buffer.from(protocolIndicatorByte, "hex"),
-//   //   Buffer.from(payload),
-//   // ]);
-
-//   // if (getChecksum(bytes_address).toString("hex") !== checksum.toString("hex")) {
-//   //   throw new InvalidChecksumAddress();
-//   // }
-
-// }
