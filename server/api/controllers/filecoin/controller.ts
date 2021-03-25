@@ -1,15 +1,16 @@
 import { Request, Response } from 'express'
-import * as bls from 'noble-bls12-381'
 import * as lotus from '../../lib/lotus'
 import * as db from '../../lib/db'
 import filecoin from 'webnative-filecoin'
 
+// const SERVER_PRIVATE_KEY =
+//   '4eeb8f66c557115a7ec37e7debc2b0b9130f0d4a2b74cd64ec478a88e2ac052c'
+// const SERVER_PUBLIC_KEY = filecoin.privToPub(SERVER_PRIVATE_KEY)
 
-const SERVER_PRIVATE_KEY =
-  '4eeb8f66c557115a7ec37e7debc2b0b9130f0d4a2b74cd64ec478a88e2ac052c'
-const SERVER_PUBLIC_KEY = filecoin.privToPub(SERVER_PRIVATE_KEY)
-
-export const createKeyPair = (req: Request, res: Response): void => {
+export const createKeyPair = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
   const { publicKey } = req.body
   if (!publicKey) {
     res.status(400).send('Missing param: `publicKey`')
@@ -18,9 +19,10 @@ export const createKeyPair = (req: Request, res: Response): void => {
     res.status(400).send('Ill-formatted param: `publicKey` should be a string')
     return
   }
-  console.log(db)
-  const fissionPubKey = bls.getPublicKey(SERVER_PRIVATE_KEY)
-  res.status(200).send({ publicKey: fissionPubKey })
+  const serverPrivKey = await db.createServerKey(publicKey)
+  const serverPubKey = filecoin.privToPub(serverPrivKey)
+  const address = filecoin.pubToAggAddress(publicKey, serverPubKey)
+  res.status(200).send({ address })
 }
 
 export const getWalletInfo = async (
@@ -32,7 +34,11 @@ export const getWalletInfo = async (
     res.status(400).send('Bad params')
     return
   }
-  const address = filecoin.pubToAggAddress(SERVER_PUBLIC_KEY, ownPubKey)
+  const address = await db.getAggAddress(ownPubKey)
+  if (address === null) {
+    res.status(404).send('Could not find user key')
+    return
+  }
   const attoFilBalance = await lotus.getBalance(address)
   const balance = filecoin.attoFilToFil(attoFilBalance)
   res.status(200).send({ address, balance })
@@ -47,7 +53,11 @@ export const getAggregatedAddress = async (
     res.status(400).send('Bad params')
     return
   }
-  const address = filecoin.pubToAggAddress(SERVER_PUBLIC_KEY, ownPubKey)
+  const address = await db.getAggAddress(ownPubKey)
+  if (address === null) {
+    res.status(404).send('Could not find user key')
+    return
+  }
   res.status(200).send({ address })
 }
 
@@ -91,7 +101,11 @@ export const formatMsg = async (req: Request, res: Response): Promise<void> => {
   }
 
   const attoAmount = filecoin.filToAttoFil(amountNum)
-  const from = filecoin.pubToAggAddress(SERVER_PUBLIC_KEY, ownPubKey)
+  const from = await db.getAggAddress(ownPubKey)
+  if (from === null) {
+    res.status(404).send('Could not find user key')
+    return
+  }
 
   const nonce = (await lotus.getNonce(from)) || 0
 
@@ -119,11 +133,15 @@ export const cosignMessage = async (
 ): Promise<void> => {
   const message = req.body.message as any
 
-  console.log('message: ', message)
+  const serverPrivKey = await db.getKeyByAddress(message.From)
+  if (serverPrivKey === null) {
+    res.status(404).send('Could not find user key')
+    return
+  }
 
   const serverSigned = await filecoin.signLotusMessage(
     message.Message,
-    SERVER_PRIVATE_KEY
+    serverPrivKey
   )
 
   const aggSig = filecoin.aggregateSigs(
