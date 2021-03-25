@@ -19,10 +19,18 @@ export const createKeyPair = async (
     res.status(400).send('Ill-formatted param: `publicKey` should be a string')
     return
   }
-  const serverPrivKey = await db.createServerKey(publicKey)
-  const serverPubKey = filecoin.privToPub(serverPrivKey)
-  const address = filecoin.pubToAggAddress(publicKey, serverPubKey)
-  res.status(200).send({ address })
+  try {
+    const address = await db.createServerKey(publicKey)
+    const attoFilBalance = await lotus.getBalance(address)
+    const balance = filecoin.attoFilToFil(attoFilBalance)
+    res.status(200).send({ address, balance })
+  } catch (err) {
+    if (err === db.UserAlreadyRegistered) {
+      res.status(409).send(err.toString())
+    } else {
+      res.status(500).send(err.toString())
+    }
+  }
 }
 
 export const getWalletInfo = async (

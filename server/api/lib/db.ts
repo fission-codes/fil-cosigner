@@ -11,6 +11,8 @@ const client = new Client({
 
 client.connect()
 
+export const UserAlreadyRegistered = new Error('User is already registered')
+
 export const createServerKey = async (userPubKey: string): Promise<string> => {
   const privkey = crypto.randomBytes(32).toString('hex')
   console.log()
@@ -24,12 +26,12 @@ export const createServerKey = async (userPubKey: string): Promise<string> => {
     )
   } catch (err) {
     if (err.code === '23505') {
-      throw new Error('User is already registered')
+      throw UserAlreadyRegistered
     } else {
       throw err
     }
   }
-  return privkey
+  return address
 }
 
 export const getAggAddress = async (
