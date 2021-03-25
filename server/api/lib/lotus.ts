@@ -1,5 +1,7 @@
 import axios from 'axios'
 import { CID } from 'webnative/ipfs'
+import { SignedMessage, MessageBody, CIDObj } from 'webnative-filecoin'
+import { LotusWaitResp } from './types'
 
 const RPC_API = 'http://127.0.0.1:1234/rpc/v0'
 const request = {
@@ -7,12 +9,9 @@ const request = {
   id: 1,
 }
 
-const BEARER_TOKEN =
-  'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJBbGxvdyI6WyJyZWFkIiwid3JpdGUiLCJzaWduIiwiYWRtaW4iXX0.T3HSQoAWLdhtDS4pVJ3GRUNQ5RoLIN8teqEqdNpl350'
-
 const AUTH = {
   headers: {
-    Authorization: BEARER_TOKEN,
+    Authorization: process.env.LOTUS_TOKEN,
   },
 }
 
@@ -41,30 +40,28 @@ export const validateAddress = async (address: string) => {
   return sendReq('WalletValidateAddress', [address])
 }
 
-export const verify = async (address: string, msg: string): Promise<any> => {
-  return sendReq('WalletVerify', [address, msg])
-}
-
-export const signMessage = async (address: string, msg: any): Promise<any> => {
+export const signMessage = async (
+  address: string,
+  msg: MessageBody
+): Promise<SignedMessage> => {
   return sendReq('WalletSignMessage', [address, msg])
 }
 
-export const sendMessage = async (msg: any): Promise<any> => {
+export const sendMessage = async (msg: SignedMessage): Promise<CIDObj> => {
   return sendReq('MpoolPush', [msg])
 }
 
-export const estimateGas = async (msg: any): Promise<any> => {
+export const estimateGas = async (msg: MessageBody): Promise<MessageBody> => {
   return sendReq('GasEstimateMessageGas', [msg, { MaxFee: '0' }, []])
 }
 
-export const sign = async (address: string, msg: string): Promise<any> => {
-  return sendReq('WalletSign', [address, msg])
-}
-
-export const waitMsg = async (cid: CID, threshold = 2): Promise<any> => {
+export const waitMsg = async (
+  cid: CID,
+  threshold = 2
+): Promise<LotusWaitResp> => {
   return sendReq('StateWaitMsg', [{ '/': cid }, threshold])
 }
 
-export const getMsg = async (cid: CID): Promise<any> => {
+export const getMsg = async (cid: CID): Promise<MessageBody> => {
   return sendReq('ChainGetMessage', [{ '/': cid }])
 }

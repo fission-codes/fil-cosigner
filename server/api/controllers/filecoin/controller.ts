@@ -1,7 +1,9 @@
 import { Request, Response } from 'express'
 import * as bls from 'noble-bls12-381'
 import * as lotus from '../../lib/lotus'
+import * as db from '../../lib/db'
 import filecoin from 'webnative-filecoin'
+
 
 const SERVER_PRIVATE_KEY =
   '4eeb8f66c557115a7ec37e7debc2b0b9130f0d4a2b74cd64ec478a88e2ac052c'
@@ -16,6 +18,7 @@ export const createKeyPair = (req: Request, res: Response): void => {
     res.status(400).send('Ill-formatted param: `publicKey` should be a string')
     return
   }
+  console.log(db)
   const fissionPubKey = bls.getPublicKey(SERVER_PRIVATE_KEY)
   res.status(200).send({ publicKey: fissionPubKey })
 }
@@ -146,6 +149,7 @@ export const waitForReceipt = async (
 ): Promise<void> => {
   const { cid } = req.params
   const waitResult = await lotus.waitMsg(cid as string)
+  console.log(waitResult)
   const msg = await lotus.getMsg(cid as string)
 
   res.status(200).send({
