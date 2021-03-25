@@ -139,3 +139,19 @@ export const cosignMessage = async (
   const result = await lotus.sendMessage(aggMsg)
   res.status(200).send(result['/'])
 }
+
+export const waitForReceipt = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  const { cid } = req.params
+  const waitResult = await lotus.waitMsg(cid as string)
+  const msg = await lotus.getMsg(cid as string)
+
+  res.status(200).send({
+    from: msg.From,
+    to: msg.To,
+    amount: filecoin.attoFilToFil(msg.Value),
+    blockHeight: waitResult.Height,
+  })
+}
