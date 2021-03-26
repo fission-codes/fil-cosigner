@@ -23,3 +23,11 @@ export type PairedKeys = {
   userPubKey: string
   serverPrivKey: string
 }
+
+export type Transaction = {
+  messageId: string
+  amount: string
+  completed: MessageStatus
+  time: number
+  blockheight: number
+}

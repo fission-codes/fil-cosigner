@@ -2,7 +2,7 @@ import { Client } from 'pg'
 import filecoin from 'webnative-filecoin'
 import crypto from 'crypto'
 import * as lotus from './lotus'
-import { MessageStatus, PairedKeys } from './types'
+import { MessageStatus, PairedKeys, Transaction } from './types'
 
 const client = new Client({
   connectionString: process.env.DATABASE_URL,
@@ -101,4 +101,15 @@ export const watchTransaction = async (
      SET completed = ${MessageStatus.Verified}, blockheight = ${waitResult.Height}
      WHERE userpubkey = '${userKey}'`
   )
+}
+
+export const getReceiptsForUser = async (
+  userKey: string
+): Promise<Transaction[]> => {
+  const res = await client.query(
+    `SELECT * 
+     FROM transactions
+     WHERE userpubkey = '${userKey}'`
+  )
+  return res.rows
 }

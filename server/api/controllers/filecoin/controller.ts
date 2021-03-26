@@ -200,3 +200,20 @@ export const waitForReceipt = async (
     blockHeight: waitResult.Height,
   })
 }
+
+export const getPastReceipts = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  const { publicKey } = req.params
+  if (!publicKey) {
+    res.status(400).send('Missing param: `publicKey`')
+    return
+  } else if (typeof publicKey !== 'string') {
+    res.status(400).send('Ill-formatted param: `publicKey` should be a string')
+    return
+  }
+
+  const receipts = await db.getReceiptsForUser(publicKey)
+  res.status(200).send(receipts)
+}
