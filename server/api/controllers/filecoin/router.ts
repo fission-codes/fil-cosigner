@@ -10,3 +10,4 @@ export default express
   .get('/provider/address', controller.getProviderAddress)
   .post('/message', controller.cosignMessage)
   .get('/waitmsg/:cid', controller.waitForReceipt)
+  .get('/receipts/:publicKey', controller.getPastReceipts)

@@ -1,13 +1,17 @@
 import { Request, Response } from 'express'
-import * as bls from 'noble-bls12-381'
 import * as lotus from '../../lib/lotus'
+import * as db from '../../lib/db'
 import filecoin from 'webnative-filecoin'
+import { MessageStatus } from '../../lib/types'
 
-const SERVER_PRIVATE_KEY =
-  '4eeb8f66c557115a7ec37e7debc2b0b9130f0d4a2b74cd64ec478a88e2ac052c'
-const SERVER_PUBLIC_KEY = filecoin.privToPub(SERVER_PRIVATE_KEY)
+// const SERVER_PRIVATE_KEY =
+//   '4eeb8f66c557115a7ec37e7debc2b0b9130f0d4a2b74cd64ec478a88e2ac052c'
+// const SERVER_PUBLIC_KEY = filecoin.privToPub(SERVER_PRIVATE_KEY)
 
-export const createKeyPair = (req: Request, res: Response): void => {
+export const createKeyPair = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
   const { publicKey } = req.body
   if (!publicKey) {
     res.status(400).send('Missing param: `publicKey`')
@@ -16,8 +20,18 @@ export const createKeyPair = (req: Request, res: Response): void => {
     res.status(400).send('Ill-formatted param: `publicKey` should be a string')
     return
   }
-  const fissionPubKey = bls.getPublicKey(SERVER_PRIVATE_KEY)
-  res.status(200).send({ publicKey: fissionPubKey })
+  try {
+    const address = await db.createServerKey(publicKey)
+    const attoFilBalance = await lotus.getBalance(address)
+    const balance = filecoin.attoFilToFil(attoFilBalance)
+    res.status(200).send({ address, balance })
+  } catch (err) {
+    if (err === db.UserAlreadyRegistered) {
+      res.status(409).send(err.toString())
+    } else {
+      res.status(500).send(err.toString())
+    }
+  }
 }
 
 export const getWalletInfo = async (
@@ -29,7 +43,11 @@ export const getWalletInfo = async (
     res.status(400).send('Bad params')
     return
   }
-  const address = filecoin.pubToAggAddress(SERVER_PUBLIC_KEY, ownPubKey)
+  const address = await db.getAggAddress(ownPubKey)
+  if (address === null) {
+    res.status(404).send('Could not find user key')
+    return
+  }
   const attoFilBalance = await lotus.getBalance(address)
   const balance = filecoin.attoFilToFil(attoFilBalance)
   res.status(200).send({ address, balance })
@@ -44,7 +62,11 @@ export const getAggregatedAddress = async (
     res.status(400).send('Bad params')
     return
   }
-  const address = filecoin.pubToAggAddress(SERVER_PUBLIC_KEY, ownPubKey)
+  const address = await db.getAggAddress(ownPubKey)
+  if (address === null) {
+    res.status(404).send('Could not find user key')
+    return
+  }
   res.status(200).send({ address })
 }
 
@@ -63,8 +85,7 @@ export const getProviderAddress = async (
   _req: Request,
   res: Response
 ): Promise<void> => {
-  // TODO: get from lotus node
-  const address = 't1golw5yofvrksvnlxtiayovr7ptthae6n54ah6na'
+  const address = await lotus.defaultAddress()
   res.status(200).send(address)
 }
 
@@ -88,7 +109,11 @@ export const formatMsg = async (req: Request, res: Response): Promise<void> => {
   }
 
   const attoAmount = filecoin.filToAttoFil(amountNum)
-  const from = filecoin.pubToAggAddress(SERVER_PUBLIC_KEY, ownPubKey)
+  const from = await db.getAggAddress(ownPubKey)
+  if (from === null) {
+    res.status(404).send('Could not find user key')
+    return
+  }
 
   const nonce = (await lotus.getNonce(from)) || 0
 
@@ -114,13 +139,23 @@ export const cosignMessage = async (
   req: Request,
   res: Response
 ): Promise<void> => {
-  const message = req.body.message as any
+  const message = req.body.message
+  if (!filecoin.isMessage(message)) {
+    res.status(400).send('Bad params')
+    return
+  }
 
-  console.log('message: ', message)
+  const { serverPrivKey, userPubKey } = await db.getKeysByAddress(
+    message.Message.From
+  )
+  if (serverPrivKey === null) {
+    res.status(404).send('Could not find user key')
+    return
+  }
 
   const serverSigned = await filecoin.signLotusMessage(
     message.Message,
-    SERVER_PRIVATE_KEY
+    serverPrivKey
   )
 
   const aggSig = filecoin.aggregateSigs(
@@ -137,7 +172,15 @@ export const cosignMessage = async (
   }
 
   const result = await lotus.sendMessage(aggMsg)
-  res.status(200).send(result['/'])
+  const cid = result['/']
+  if (typeof cid !== 'string') {
+    throw new Error('Could not send message')
+  }
+
+  await db.addTransaction(userPubKey, cid, message.Message.Value)
+  db.watchTransaction(userPubKey, cid)
+
+  res.status(200).send(cid)
 }
 
 export const waitForReceipt = async (
@@ -146,12 +189,31 @@ export const waitForReceipt = async (
 ): Promise<void> => {
   const { cid } = req.params
   const waitResult = await lotus.waitMsg(cid as string)
+  console.log(waitResult)
   const msg = await lotus.getMsg(cid as string)
 
   res.status(200).send({
+    cid: cid,
     from: msg.From,
     to: msg.To,
     amount: filecoin.attoFilToFil(msg.Value),
     blockHeight: waitResult.Height,
   })
+}
+
+export const getPastReceipts = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  const { publicKey } = req.params
+  if (!publicKey) {
+    res.status(400).send('Missing param: `publicKey`')
+    return
+  } else if (typeof publicKey !== 'string') {
+    res.status(400).send('Ill-formatted param: `publicKey` should be a string')
+    return
+  }
+
+  const receipts = await db.getReceiptsForUser(publicKey)
+  res.status(200).send(receipts)
 }
