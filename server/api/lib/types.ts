@@ -12,3 +12,14 @@ export type LotusWaitResp = {
   TipSet: CIDObj[]
   Height: number
 }
+
+export enum MessageStatus {
+  Sent = 0,
+  Partial = 1,
+  Verified = 2,
+}
+
+export type PairedKeys = {
+  userPubKey: string
+  serverPrivKey: string
+}

@@ -1,6 +1,6 @@
 import axios from 'axios'
 import { CID } from 'webnative/ipfs'
-import { SignedMessage, MessageBody, CIDObj } from 'webnative-filecoin'
+import { Address, SignedMessage, MessageBody, CIDObj } from 'webnative-filecoin'
 import { LotusWaitResp } from './types'
 
 const RPC_API = 'http://127.0.0.1:1234/rpc/v0'
@@ -57,11 +57,16 @@ export const estimateGas = async (msg: MessageBody): Promise<MessageBody> => {
 
 export const waitMsg = async (
   cid: CID,
-  threshold = 2
+  threshold = 1
 ): Promise<LotusWaitResp> => {
+  console.log(typeof cid)
   return sendReq('StateWaitMsg', [{ '/': cid }, threshold])
 }
 
 export const getMsg = async (cid: CID): Promise<MessageBody> => {
   return sendReq('ChainGetMessage', [{ '/': cid }])
+}
+
+export const defaultAddress = async (): Promise<Address> => {
+  return sendReq('WalletDefaultAddress', [])
 }

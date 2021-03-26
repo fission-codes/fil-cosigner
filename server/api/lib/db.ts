@@ -1,6 +1,8 @@
 import { Client } from 'pg'
 import filecoin from 'webnative-filecoin'
 import crypto from 'crypto'
+import * as lotus from './lotus'
+import { MessageStatus, PairedKeys } from './types'
 
 const client = new Client({
   connectionString: process.env.DATABASE_URL,
@@ -55,14 +57,48 @@ export const getMatchingKey = async (
   return res.rows[0].privkey
 }
 
-export const getKeyByAddress = async (
+export const getKeysByAddress = async (
   address: string
-): Promise<string | null> => {
+): Promise<PairedKeys | null> => {
   const res = await client.query(
     `SELECT * FROM keypairs WHERE address='${address}';`
   )
   if (res.rows.length === 0) {
     return null
   }
-  return res.rows[0].privkey
+  return {
+    userPubKey: res.rows[0].userpubkey,
+    serverPrivKey: res.rows[0].privkey,
+  }
+}
+
+export const addTransaction = async (
+  userKey: string,
+  messageId: string,
+  amount: string
+): Promise<void> => {
+  await client.query(
+    `INSERT INTO transactions (userpubkey, messageid, amount, completed, time)
+     VALUES('${userKey}','${messageId}',${amount},${MessageStatus.Sent},'${Date.now()}')`
+  )
+}
+
+export const watchTransaction = async (
+  userKey: string,
+  messageId: string
+): Promise<void> => {
+  console.log('called here: ', messageId)
+  const waitResult = await lotus.waitMsg(messageId)
+  console.log("WAIT RESULT: ", waitResult)
+  await client.query(
+    `UPDATE transactions 
+     SET completed = ${MessageStatus.Partial}, blockheight = ${waitResult.Height}
+     WHERE userpubkey = '${userKey}'`
+  )
+  await lotus.waitMsg(messageId, 200)
+  await client.query(
+    `UPDATE transactions 
+     SET completed = ${MessageStatus.Verified}, blockheight = ${waitResult.Height}
+     WHERE userpubkey = '${userKey}'`
+  )
 }

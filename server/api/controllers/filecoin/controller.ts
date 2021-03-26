@@ -2,6 +2,7 @@ import { Request, Response } from 'express'
 import * as lotus from '../../lib/lotus'
 import * as db from '../../lib/db'
 import filecoin from 'webnative-filecoin'
+import { MessageStatus } from '../../lib/types'
 
 // const SERVER_PRIVATE_KEY =
 //   '4eeb8f66c557115a7ec37e7debc2b0b9130f0d4a2b74cd64ec478a88e2ac052c'
@@ -84,8 +85,7 @@ export const getProviderAddress = async (
   _req: Request,
   res: Response
 ): Promise<void> => {
-  // TODO: get from lotus node
-  const address = 't1golw5yofvrksvnlxtiayovr7ptthae6n54ah6na'
+  const address = await lotus.defaultAddress()
   res.status(200).send(address)
 }
 
@@ -139,9 +139,15 @@ export const cosignMessage = async (
   req: Request,
   res: Response
 ): Promise<void> => {
-  const message = req.body.message as any
+  const message = req.body.message
+  if (!filecoin.isMessage(message)) {
+    res.status(400).send('Bad params')
+    return
+  }
 
-  const serverPrivKey = await db.getKeyByAddress(message.From)
+  const { serverPrivKey, userPubKey } = await db.getKeysByAddress(
+    message.Message.From
+  )
   if (serverPrivKey === null) {
     res.status(404).send('Could not find user key')
     return
@@ -166,7 +172,15 @@ export const cosignMessage = async (
   }
 
   const result = await lotus.sendMessage(aggMsg)
-  res.status(200).send(result['/'])
+  const cid = result['/']
+  if (typeof cid !== 'string') {
+    throw new Error('Could not send message')
+  }
+
+  await db.addTransaction(userPubKey, cid, message.Message.Value)
+  db.watchTransaction(userPubKey, cid)
+
+  res.status(200).send(cid)
 }
 
 export const waitForReceipt = async (
@@ -179,6 +193,7 @@ export const waitForReceipt = async (
   const msg = await lotus.getMsg(cid as string)
 
   res.status(200).send({
+    cid: cid,
     from: msg.From,
     to: msg.To,
     amount: filecoin.attoFilToFil(msg.Value),
