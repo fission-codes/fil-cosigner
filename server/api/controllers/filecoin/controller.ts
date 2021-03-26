@@ -177,7 +177,7 @@ export const cosignMessage = async (
     throw new Error('Could not send message')
   }
 
-  await db.addTransaction(userPubKey, cid, message.Message.Value)
+  await db.addTransaction(userPubKey, cid, message)
   db.watchTransaction(userPubKey, cid)
 
   res.status(200).send(cid)

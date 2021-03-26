@@ -1,5 +1,5 @@
 import { Client } from 'pg'
-import filecoin from 'webnative-filecoin'
+import filecoin, { SignedMessage } from 'webnative-filecoin'
 import crypto from 'crypto'
 import * as lotus from './lotus'
 import { MessageStatus, PairedKeys, Transaction } from './types'
@@ -75,11 +75,12 @@ export const getKeysByAddress = async (
 export const addTransaction = async (
   userKey: string,
   messageId: string,
-  amount: string
+  message: SignedMessage
 ): Promise<void> => {
+  const { Value, To, From } = message.Message
   await client.query(
-    `INSERT INTO transactions (userpubkey, messageid, amount, completed, time)
-     VALUES('${userKey}','${messageId}',${amount},${MessageStatus.Sent},'${Date.now()}')`
+    `INSERT INTO transactions (userpubkey, messageid, amount, toAddress, fromAddress, completed, time)
+     VALUES('${userKey}','${messageId}',${Value},'${To}','${From}',${MessageStatus.Sent},'${Date.now()}')`
   )
 }
 

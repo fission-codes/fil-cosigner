@@ -27,6 +27,8 @@ export type PairedKeys = {
 export type Transaction = {
   messageId: string
   amount: string
+  toAddress: string
+  fromAddress: string
   completed: MessageStatus
   time: number
   blockheight: number
