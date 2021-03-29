@@ -1,8 +1,12 @@
 import { Client } from 'pg'
-import filecoin from 'webnative-filecoin'
+import filecoin, {
+  SignedMessage,
+  Receipt,
+  MessageStatus,
+} from 'webnative-filecoin'
 import crypto from 'crypto'
 import * as lotus from './lotus'
-import { MessageStatus, PairedKeys, Transaction } from './types'
+import { PairedKeys, Transaction, TransactionRaw } from './types'
 
 const client = new Client({
   connectionString: process.env.DATABASE_URL,
@@ -17,9 +21,7 @@ export const UserAlreadyRegistered = new Error('User is already registered')
 
 export const createServerKey = async (userPubKey: string): Promise<string> => {
   const privkey = crypto.randomBytes(32).toString('hex')
-  console.log()
   const serverPubKey = filecoin.privToPub(privkey)
-  console.log(serverPubKey)
   const address = filecoin.pubToAggAddress(userPubKey, serverPubKey)
   try {
     await client.query(
@@ -75,11 +77,14 @@ export const getKeysByAddress = async (
 export const addTransaction = async (
   userKey: string,
   messageId: string,
-  amount: string
+  message: SignedMessage
 ): Promise<void> => {
+  const { Value, To, From } = message.Message
   await client.query(
-    `INSERT INTO transactions (userpubkey, messageid, amount, completed, time)
-     VALUES('${userKey}','${messageId}',${amount},${MessageStatus.Sent},'${Date.now()}')`
+    `INSERT INTO transactions (userpubkey, messageid, amount, toAddress, fromAddress, status, time)
+     VALUES('${userKey}','${messageId}',${Value},'${To}','${From}',${
+      MessageStatus.Sent
+    },'${Date.now()}')`
   )
 }
 
@@ -87,18 +92,16 @@ export const watchTransaction = async (
   userKey: string,
   messageId: string
 ): Promise<void> => {
-  console.log('called here: ', messageId)
   const waitResult = await lotus.waitMsg(messageId)
-  console.log("WAIT RESULT: ", waitResult)
   await client.query(
     `UPDATE transactions 
-     SET completed = ${MessageStatus.Partial}, blockheight = ${waitResult.Height}
+     SET status = ${MessageStatus.Partial}, blockheight = ${waitResult.Height}
      WHERE userpubkey = '${userKey}'`
   )
   await lotus.waitMsg(messageId, 200)
   await client.query(
     `UPDATE transactions 
-     SET completed = ${MessageStatus.Verified}, blockheight = ${waitResult.Height}
+     SET status = ${MessageStatus.Verified}, blockheight = ${waitResult.Height}
      WHERE userpubkey = '${userKey}'`
   )
 }
@@ -113,3 +116,13 @@ export const getReceiptsForUser = async (
   )
   return res.rows
 }
+
+const txToReceipts = (tx: TransactionRaw): Receipt => ({
+  messageId: tx.messageid,
+  from: tx.fromaddress,
+  to: tx.toaddress,
+  amount: filecoin.attoFilToFil(tx.amount),
+  time: tx.time,
+  blockheight: tx.blockheight,
+  status: tx.status,
+})

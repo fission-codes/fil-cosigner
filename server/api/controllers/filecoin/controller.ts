@@ -2,7 +2,6 @@ import { Request, Response } from 'express'
 import * as lotus from '../../lib/lotus'
 import * as db from '../../lib/db'
 import filecoin from 'webnative-filecoin'
-import { MessageStatus } from '../../lib/types'
 
 // const SERVER_PRIVATE_KEY =
 //   '4eeb8f66c557115a7ec37e7debc2b0b9130f0d4a2b74cd64ec478a88e2ac052c'
@@ -177,7 +176,7 @@ export const cosignMessage = async (
     throw new Error('Could not send message')
   }
 
-  await db.addTransaction(userPubKey, cid, message.Message.Value)
+  await db.addTransaction(userPubKey, cid, message)
   db.watchTransaction(userPubKey, cid)
 
   res.status(200).send(cid)
@@ -189,7 +188,6 @@ export const waitForReceipt = async (
 ): Promise<void> => {
   const { cid } = req.params
   const waitResult = await lotus.waitMsg(cid as string)
-  console.log(waitResult)
   const msg = await lotus.getMsg(cid as string)
 
   res.status(200).send({

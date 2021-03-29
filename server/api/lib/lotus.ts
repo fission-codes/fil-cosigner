@@ -59,7 +59,6 @@ export const waitMsg = async (
   cid: CID,
   threshold = 1
 ): Promise<LotusWaitResp> => {
-  console.log(typeof cid)
   return sendReq('StateWaitMsg', [{ '/': cid }, threshold])
 }
 
