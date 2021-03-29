@@ -1,4 +1,4 @@
-import { CIDObj } from 'webnative-filecoin'
+import { MessageStatus, CIDObj } from 'webnative-filecoin'
 
 export type LotusReceipt = {
   ExitCode: number
@@ -13,15 +13,19 @@ export type LotusWaitResp = {
   Height: number
 }
 
-export enum MessageStatus {
-  Sent = 0,
-  Partial = 1,
-  Verified = 2,
-}
-
 export type PairedKeys = {
   userPubKey: string
   serverPrivKey: string
+}
+
+export type TransactionRaw = {
+  messageid: string
+  amount: string
+  toaddress: string
+  fromaddress: string
+  status: MessageStatus
+  time: number
+  blockheight: number
 }
 
 export type Transaction = {
@@ -29,7 +33,7 @@ export type Transaction = {
   amount: string
   toAddress: string
   fromAddress: string
-  completed: MessageStatus
+  status: MessageStatus
   time: number
   blockheight: number
 }

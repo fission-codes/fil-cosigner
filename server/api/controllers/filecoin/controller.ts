@@ -2,7 +2,6 @@ import { Request, Response } from 'express'
 import * as lotus from '../../lib/lotus'
 import * as db from '../../lib/db'
 import filecoin from 'webnative-filecoin'
-import { MessageStatus } from '../../lib/types'
 
 // const SERVER_PRIVATE_KEY =
 //   '4eeb8f66c557115a7ec37e7debc2b0b9130f0d4a2b74cd64ec478a88e2ac052c'
