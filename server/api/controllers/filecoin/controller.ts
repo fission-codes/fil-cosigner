@@ -188,7 +188,6 @@ export const waitForReceipt = async (
 ): Promise<void> => {
   const { cid } = req.params
   const waitResult = await lotus.waitMsg(cid as string)
-  console.log(waitResult)
   const msg = await lotus.getMsg(cid as string)
 
   res.status(200).send({

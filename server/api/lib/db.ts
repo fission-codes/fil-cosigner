@@ -21,9 +21,7 @@ export const UserAlreadyRegistered = new Error('User is already registered')
 
 export const createServerKey = async (userPubKey: string): Promise<string> => {
   const privkey = crypto.randomBytes(32).toString('hex')
-  console.log()
   const serverPubKey = filecoin.privToPub(privkey)
-  console.log(serverPubKey)
   const address = filecoin.pubToAggAddress(userPubKey, serverPubKey)
   try {
     await client.query(

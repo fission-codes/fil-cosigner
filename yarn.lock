@@ -3851,8 +3851,10 @@ web-encoding@^1.1.0:
   optionalDependencies:
     "@zxing/text-encoding" "0.9.0"
 
-webnative-filecoin@../webnative-filecoin:
-  version "0.0.0"
+webnative-filecoin@^0.1.0:
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/webnative-filecoin/-/webnative-filecoin-0.1.0.tgz#b0caaf347b25e2b0f8db6e10e51fd06090322fe6"
+  integrity sha512-lzaCxLlI1qDQqk1CvNB6Oh1bgzH5nOIZEtP7YuZyYrIGZFIBPuZct5TaVEjlPTnN7ciNax/Iu7tSmLwL2zaJZw==
   dependencies:
     "@glif/filecoin-address" "^1.1.0-beta.18"
     axios "^0.21.1"
