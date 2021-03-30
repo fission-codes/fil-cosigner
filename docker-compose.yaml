@@ -1,0 +1,31 @@
+version: '3.7'
+
+volumes:
+  lotus:
+services: 
+
+  api:
+    build: .
+    command: yarn start
+    environment:
+      NODE_ENV: development
+    ports:
+      - "3000:3000"
+    # volumes:
+    #   - .:/home/nodejs/app
+    #   - ./node_modules:/home/nodejs/node_modules
+
+  
+  lotus:
+    image: textile/lotus:${LOTUS_IMAGE_TAG}
+    volumes:
+      - lotus:/data
+    environment:
+      - LOTUS_API_LISTENADDRESS=/ip4/0.0.0.0/tcp/1234/http
+      - LOTUS_CLIENT_USEIPFS=true
+      - LOTUS_CLIENT_IPFSUSEFORRETRIEVAL=true
+      - LOTUS_CLIENT_IPFSMADDR=/dns4/ipfs/tcp/5001
+    ports:
+      - 1234:1234
+      - 5678:5678
+    restart: unless-stopped

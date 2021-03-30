@@ -3,7 +3,7 @@ import { CID } from 'webnative/ipfs'
 import { Address, SignedMessage, MessageBody, CIDObj } from 'webnative-filecoin'
 import { LotusWaitResp } from './types'
 
-const RPC_API = 'http://127.0.0.1:1234/rpc/v0'
+const RPC_API = 'http://localhost:1234/rpc/v0'
 const request = {
   jsonrpc: '2.0',
   id: 1,
