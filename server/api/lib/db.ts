@@ -6,7 +6,7 @@ import filecoin, {
 } from 'webnative-filecoin'
 import crypto from 'crypto'
 import * as lotus from './lotus'
-import { PairedKeys, Transaction, TransactionRaw } from './types'
+import { PairedKeys, TransactionRaw } from './types'
 
 const client = new Client({
   connectionString: process.env.DATABASE_URL,
@@ -108,13 +108,13 @@ export const watchTransaction = async (
 
 export const getReceiptsForUser = async (
   userKey: string
-): Promise<Transaction[]> => {
+): Promise<Receipt[]> => {
   const res = await client.query(
     `SELECT * 
      FROM transactions
      WHERE userpubkey = '${userKey}'`
   )
-  return res.rows
+  return res.rows.map(txToReceipts)
 }
 
 const txToReceipts = (tx: TransactionRaw): Receipt => ({
