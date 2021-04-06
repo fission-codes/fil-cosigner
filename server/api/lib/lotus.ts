@@ -69,3 +69,8 @@ export const getMsg = async (cid: CID): Promise<MessageBody> => {
 export const defaultAddress = async (): Promise<Address> => {
   return sendReq('WalletDefaultAddress', [])
 }
+
+export const currentBlockHeight = async (): Promise<number> => {
+  const result = await sendReq('ChainHead', [])
+  return result.Height
+}
