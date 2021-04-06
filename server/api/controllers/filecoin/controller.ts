@@ -1,11 +1,8 @@
 import { Request, Response } from 'express'
 import * as lotus from '../../lib/lotus'
 import * as db from '../../lib/db'
-import filecoin from 'webnative-filecoin'
-
-// const SERVER_PRIVATE_KEY =
-//   '4eeb8f66c557115a7ec37e7debc2b0b9130f0d4a2b74cd64ec478a88e2ac052c'
-// const SERVER_PUBLIC_KEY = filecoin.privToPub(SERVER_PRIVATE_KEY)
+import * as filecoin from 'webnative-filecoin'
+import { MessageStatus } from 'webnative-filecoin'
 
 export const createKeyPair = async (
   req: Request,
@@ -47,9 +44,12 @@ export const getWalletInfo = async (
     res.status(404).send('Could not find user key')
     return
   }
-  const attoFilBalance = await lotus.getBalance(address)
+  const [attoFilBalance, providerBalance] = await Promise.all([
+    lotus.getBalance(address),
+    db.getProviderBalance(ownPubKey),
+  ])
   const balance = filecoin.attoFilToFil(attoFilBalance)
-  res.status(200).send({ address, balance })
+  res.status(200).send({ address, balance, providerBalance })
 }
 
 export const getAggregatedAddress = async (
@@ -179,7 +179,15 @@ export const cosignMessage = async (
   await db.addTransaction(userPubKey, cid, message)
   db.watchTransaction(userPubKey, cid)
 
-  res.status(200).send(cid)
+  res.status(200).send({
+    messageId: cid,
+    from: aggMsg.Message.From,
+    to: aggMsg.Message.To,
+    amount: filecoin.attoFilToFil(aggMsg.Message.Value),
+    time: Date.now(),
+    blockheight: null,
+    status: MessageStatus.Sent,
+  })
 }
 
 export const waitForReceipt = async (
@@ -214,4 +222,48 @@ export const getPastReceipts = async (
 
   const receipts = await db.getReceiptsForUser(publicKey)
   res.status(200).send(receipts)
+}
+
+export const getMessageStatus = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  const { cid } = req.params
+  if (!cid) {
+    res.status(400).send('Missing param: `cid`')
+    return
+  } else if (typeof cid !== 'string') {
+    res.status(400).send('Ill-formatted param: `cid` should be a string')
+    return
+  }
+  const maybeReceipt = await db.getReceipt(cid)
+  if (maybeReceipt === null) {
+    res.status(404).send(`Message not found: ${cid}`)
+    return
+  }
+  res.status(200).send(maybeReceipt)
+}
+
+export const getProviderBalance = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  const { publicKey } = req.params
+  if (!publicKey) {
+    res.status(400).send('Missing param: `publicKey`')
+    return
+  } else if (typeof publicKey !== 'string') {
+    res.status(400).send('Ill-formatted param: `publicKey` should be a string')
+    return
+  }
+  const balance = await db.getProviderBalance(publicKey)
+  res.status(200).send({ balance })
+}
+
+export const getBlockHeight = async (
+  _req: Request,
+  res: Response
+): Promise<void> => {
+  const height = await lotus.currentBlockHeight()
+  res.status(200).send({ height })
 }

@@ -24,7 +24,7 @@ export type TransactionRaw = {
   toaddress: string
   fromaddress: string
   status: MessageStatus
-  time: number
+  time: string
   blockheight: number
 }
 

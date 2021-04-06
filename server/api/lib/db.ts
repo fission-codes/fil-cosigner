@@ -1,12 +1,10 @@
 import { Client } from 'pg'
-import filecoin, {
-  SignedMessage,
-  Receipt,
-  MessageStatus,
-} from 'webnative-filecoin'
+import * as filecoin from 'webnative-filecoin'
+import { SignedMessage, Receipt, MessageStatus } from 'webnative-filecoin'
 import crypto from 'crypto'
 import * as lotus from './lotus'
 import { PairedKeys, TransactionRaw } from './types'
+import { CID } from 'webnative/ipfs'
 
 const client = new Client({
   connectionString: process.env.DATABASE_URL,
@@ -106,6 +104,20 @@ export const watchTransaction = async (
   )
 }
 
+export const getReceipt = async (messageId: CID): Promise<Receipt | null> => {
+  const res = await client.query(
+    `SELECT * 
+     FROM transactions
+     WHERE messageid = '${messageId}'
+    `
+  )
+  console.log('res: ', res)
+  if (res.rows.length < 1) {
+    return null
+  }
+  return txToReceipt(res.rows[0])
+}
+
 export const getReceiptsForUser = async (
   userKey: string
 ): Promise<Receipt[]> => {
@@ -114,15 +126,30 @@ export const getReceiptsForUser = async (
      FROM transactions
      WHERE userpubkey = '${userKey}'`
   )
-  return res.rows.map(txToReceipts)
+  return res.rows.map(txToReceipt)
 }
 
-const txToReceipts = (tx: TransactionRaw): Receipt => ({
+export const getProviderBalance = async (
+  userKey: string
+): Promise<number | null> => {
+  const res = await client.query(
+    `SELECT SUM(amount)
+     FROM transactions
+     WHERE userpubkey = '${userKey}'
+    `
+  )
+  if (res.rows.length < 1) {
+    return 0
+  }
+  return filecoin.attoFilToFil(res.rows[0].sum)
+}
+
+const txToReceipt = (tx: TransactionRaw): Receipt => ({
   messageId: tx.messageid,
   from: tx.fromaddress,
   to: tx.toaddress,
   amount: filecoin.attoFilToFil(tx.amount),
-  time: tx.time,
+  time: parseInt(tx.time),
   blockheight: tx.blockheight,
   status: tx.status,
 })

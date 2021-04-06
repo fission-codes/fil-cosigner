@@ -189,6 +189,11 @@
   resolved "https://registry.yarnpkg.com/@types/json-schema/-/json-schema-7.0.6.tgz#f4c7ec43e81b319a9815115031709f26987891f0"
   integrity sha512-3c+yGKvVP5Y9TYBEibGNR+kLtijnj7mYrXRg+WpFb2X9xm04g/DXYkfg4hmzJQosc9snFNUPkbYIhu+KAm6jJw==
 
+"@types/lodash@^4.14.168":
+  version "4.14.168"
+  resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.168.tgz#fe24632e79b7ade3f132891afff86caa5e5ce008"
+  integrity sha512-oVfRvqHV/V6D1yifJbVRU3TMp8OT6o6BG+U9MkwuJ3U8/CsDHvalRpsxBqivn71ztOFZBTfJMvETbqHiaNSj7Q==
+
 "@types/mime@*":
   version "2.0.3"
   resolved "https://registry.yarnpkg.com/@types/mime/-/mime-2.0.3.tgz#c893b73721db73699943bfc3653b1deb7faa4a3a"
@@ -601,7 +606,7 @@ bn.js@^4.11.8:
   resolved "https://registry.yarnpkg.com/bn.js/-/bn.js-4.12.0.tgz#775b3f278efbb9718eec7361f483fb36fbbfea88"
   integrity sha512-c98Bf3tPniI+scsdk237ku1Dc3ujXQTSgyiPUDEOe7tRkhrqridvh8klBv0HCEso1OLOYcHuCv/cS6DNxKH+ZA==
 
-bn.js@^5.0.0, bn.js@^5.1.2:
+bn.js@^5.0.0, bn.js@^5.1.2, bn.js@^5.2.0:
   version "5.2.0"
   resolved "https://registry.yarnpkg.com/bn.js/-/bn.js-5.2.0.tgz#358860674396c6997771a9d051fcc1b57d4ae002"
   integrity sha512-D7iWRBvnZE8ecXiLj/9wbxH7Tk79fAh8IHaTNq1RWRixsS02W+5qS+iE9yq6RYl0asXx5tw0bLhmT5pIfbSquw==
@@ -876,6 +881,16 @@ cids@^1.0.0, cids@^1.1.5:
     multicodec "^2.1.0"
     multihashes "^3.1.0"
     uint8arrays "^2.0.5"
+
+cids@^1.1.6:
+  version "1.1.6"
+  resolved "https://registry.yarnpkg.com/cids/-/cids-1.1.6.tgz#ac7aea7dbcabaa64ca242b5d970d596a5c34d006"
+  integrity sha512-5P+Jas2bVpjiHibp/SOwKY+v7JhAjTChaAZN+vCIrsWXn/JZV0frX22Vp5zZgEyJRPco79pX+yNQ2S3LkRukHQ==
+  dependencies:
+    multibase "^4.0.1"
+    multicodec "^3.0.1"
+    multihashes "^4.0.1"
+    uint8arrays "^2.1.3"
 
 cipher-base@^1.0.1, cipher-base@^1.0.3:
   version "1.0.4"
@@ -1240,6 +1255,11 @@ elliptic@^6.4.0, elliptic@^6.5.2:
     inherits "^2.0.4"
     minimalistic-assert "^1.0.1"
     minimalistic-crypto-utils "^1.0.1"
+
+emitter-component@^1.1.1:
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/emitter-component/-/emitter-component-1.1.1.tgz#065e2dbed6959bf470679edabeaf7981d1003ab6"
+  integrity sha1-Bl4tvtaVm/RwZ57avq95gdEAOrY=
 
 emoji-regex@^7.0.1:
   version "7.0.3"
@@ -1946,6 +1966,15 @@ ini@~1.3.0:
   resolved "https://registry.yarnpkg.com/ini/-/ini-1.3.8.tgz#a29da425b48806f34767a4efce397269af28432c"
   integrity sha512-JV/yugV2uzW5iMRSiZAyDtQd+nxtUnjeLt0acNdw98kKLrvuRVyB80tsREOE7yvGVgalhZ6RNXCmEHkUKBKxew==
 
+interface-ipld-format@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/interface-ipld-format/-/interface-ipld-format-1.0.0.tgz#8cd9b37363a3b7aee0b109f4fa55e89af31e20f8"
+  integrity sha512-/df/uHRUxE9LtTJaC1QAwgmHUjdVxvCvQKQLoMo2k4Ilu3uSob5vNmZqXXnuQQM4M5tZjyRbqMm+A+hvWbki8w==
+  dependencies:
+    cids "^1.1.6"
+    multicodec "^3.0.1"
+    multihashes "^4.0.2"
+
 interpret@^1.0.0:
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/interpret/-/interpret-1.4.0.tgz#665ab8bc4da27a774a40584e812e3e0fa45b1a1e"
@@ -2007,6 +2036,19 @@ ipld-dag-cbor@^0.17.0:
   dependencies:
     borc "^2.1.2"
     cids "^1.0.0"
+    is-circular "^1.0.2"
+    multicodec "^3.0.1"
+    multihashing-async "^2.0.0"
+    uint8arrays "^2.1.3"
+
+ipld-dag-cbor@^0.18.0:
+  version "0.18.0"
+  resolved "https://registry.yarnpkg.com/ipld-dag-cbor/-/ipld-dag-cbor-0.18.0.tgz#37ff0a4819692cfd5885a479d4f349dddd840af1"
+  integrity sha512-vr5X6MCuDW0pYHD9/PbMwS6naXeHzjGv7BWsjXz5ebBANzQzOGO4vRHPxbHEAlL8KWiXuCfSiwoJUHlHav209Q==
+  dependencies:
+    borc "^2.1.2"
+    cids "^1.0.0"
+    interface-ipld-format "^1.0.0"
     is-circular "^1.0.2"
     multicodec "^3.0.1"
     multihashing-async "^2.0.0"
@@ -2248,7 +2290,7 @@ latest-version@^5.0.0:
   dependencies:
     package-json "^6.3.0"
 
-leb128@0.0.5:
+leb128@0.0.5, leb128@^0.0.5:
   version "0.0.5"
   resolved "https://registry.yarnpkg.com/leb128/-/leb128-0.0.5.tgz#84524a86ef7799fb3933ce41345f6490e27ac948"
   integrity sha512-elbNtfmu3GndZbesVF6+iQAfVjOXW9bM/aax9WwMlABZW+oK9sbAZEXoewaPHmL34sxa8kVwWsru8cNE/yn2gg==
@@ -2341,6 +2383,11 @@ lodash@^4.17.15, lodash@^4.17.19, lodash@^4.17.20:
   version "4.17.20"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.20.tgz#b44a9b6297bcb698f1c51a3545a2b3b368d59c52"
   integrity sha512-PlhdFcillOINfeV7Ni6oF1TAEayyZBoZ8bcshTHqOYJYlrqzRK5hagpagky5o4HfCzzd1TRkXPMFq6cKk9rGmA==
+
+lodash@^4.17.21:
+  version "4.17.21"
+  resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.21.tgz#679591c564c3bffaae8454cf0b3df370c3d6911c"
+  integrity sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==
 
 log-symbols@4.0.0:
   version "4.0.0"
@@ -2595,6 +2642,15 @@ multihashes@^3.1.0, multihashes@^3.1.1, multihashes@^3.1.2:
     multibase "^3.1.0"
     uint8arrays "^2.0.5"
     varint "^6.0.0"
+
+multihashes@^4.0.1, multihashes@^4.0.2:
+  version "4.0.2"
+  resolved "https://registry.yarnpkg.com/multihashes/-/multihashes-4.0.2.tgz#d76aeac3a302a1bed9fe1ec964fb7a22fa662283"
+  integrity sha512-xpx++1iZr4ZQHjN1mcrXS6904R36LWLxX/CBifczjtmrtCXEX623DMWOF1eiNSg+pFpiZDFVBgou/4v6ayCHSQ==
+  dependencies:
+    multibase "^4.0.1"
+    uint8arrays "^2.1.3"
+    varint "^5.0.2"
 
 multihashing-async@^2.0.0, multihashing-async@^2.0.1:
   version "2.1.0"
@@ -3450,6 +3506,13 @@ stable@^0.1.8:
   resolved "https://registry.yarnpkg.com/statuses/-/statuses-1.5.0.tgz#161c7dac177659fd9811f43771fa99381478628c"
   integrity sha1-Fhx9rBd2Wf2YEfQ3cfqZOBR4Yow=
 
+stream@^0.0.2:
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/stream/-/stream-0.0.2.tgz#7f5363f057f6592c5595f00bc80a27f5cec1f0ef"
+  integrity sha1-f1Nj8Ff2WSxVlfALyAon9c7B8O8=
+  dependencies:
+    emitter-component "^1.1.1"
+
 streamsearch@0.1.2:
   version "0.1.2"
   resolved "https://registry.yarnpkg.com/streamsearch/-/streamsearch-0.1.2.tgz#808b9d0e56fc273d809ba57338e929919a1a9f1a"
@@ -3851,15 +3914,24 @@ web-encoding@^1.1.0:
   optionalDependencies:
     "@zxing/text-encoding" "0.9.0"
 
-webnative-filecoin@^0.1.0:
-  version "0.1.0"
-  resolved "https://registry.yarnpkg.com/webnative-filecoin/-/webnative-filecoin-0.1.0.tgz#b0caaf347b25e2b0f8db6e10e51fd06090322fe6"
-  integrity sha512-lzaCxLlI1qDQqk1CvNB6Oh1bgzH5nOIZEtP7YuZyYrIGZFIBPuZct5TaVEjlPTnN7ciNax/Iu7tSmLwL2zaJZw==
+webnative-filecoin@^0.4.0:
+  version "0.4.0"
+  resolved "https://registry.yarnpkg.com/webnative-filecoin/-/webnative-filecoin-0.4.0.tgz#54b256ee85c82bfe3e306e4b9ac14912f472315e"
+  integrity sha512-Gu+4C58AwP+Bs8Aest725ED73DZ+i087HFU3gdW5+m5xd3ukTTl33axg7S6hLz92HCTA+N/FbAnMrdlTkIrVdA==
   dependencies:
     "@glif/filecoin-address" "^1.1.0-beta.18"
+    "@types/lodash" "^4.14.168"
     axios "^0.21.1"
-    fission-filecoin-signing-tools "^0.2.0"
+    base32-decode "^1.0.0"
+    blakejs "^1.1.0"
+    bn.js "^5.2.0"
+    buffer "^6.0.3"
+    ipld-dag-cbor "^0.18.0"
+    leb128 "^0.0.5"
+    lodash "^4.17.21"
+    lowercase-keys "^2.0.0"
     noble-bls12-381 "^0.9.0"
+    stream "^0.0.2"
     webnative "^0.21.4"
 
 webnative@^0.21.4:
