@@ -111,7 +111,6 @@ export const getReceipt = async (messageId: CID): Promise<Receipt | null> => {
      WHERE messageid = '${messageId}'
     `
   )
-  console.log('res: ', res)
   if (res.rows.length < 1) {
     return null
   }
@@ -132,13 +131,14 @@ export const getReceiptsForUser = async (
 export const getProviderBalance = async (
   userKey: string
 ): Promise<number | null> => {
+  const providerAddr = await lotus.defaultAddress()
   const res = await client.query(
     `SELECT SUM(amount)
      FROM transactions
-     WHERE userpubkey = '${userKey}'
+     WHERE userpubkey = '${userKey}' AND toaddress = '${providerAddr}'
     `
   )
-  if (res.rows.length < 1) {
+  if (res.rows.length < 1 || res.rows[0].sum === null) {
     return 0
   }
   return filecoin.attoFilToFil(res.rows[0].sum)

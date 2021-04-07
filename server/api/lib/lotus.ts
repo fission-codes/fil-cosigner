@@ -29,7 +29,8 @@ export const sendReq = async (method: string, params: any[]): Promise<any> => {
 }
 
 export const getBalance = async (address: string): Promise<string> => {
-  return sendReq('WalletBalance', [address])
+  const balance = sendReq('WalletBalance', [address])
+  return balance === null ? '0' : balance
 }
 
 export const getNonce = async (address: string): Promise<number> => {
