@@ -142,7 +142,7 @@ export const getProviderBalance = async (
   if (res.rows.length < 1 || res.rows[0].sum === null) {
     return 0
   }
-  return filecoin.attoFilToFil(res.rows[0].sum)
+  return filecoin.picoFilToFil(res.rows[0].sum)
 }
 
 const txToReceipt = (tx: TransactionRaw): Receipt => ({
