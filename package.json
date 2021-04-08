@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node dist/index.js",
     "build": "ts-node build.ts && tsc",
-    "setup-db": "ts-node setupDb.ts",
+    "setup-db": "ts-node db/setup.ts",
+    "clear-txs": "ts-node db/cleartxs.ts",
     "dev": "nodemon server/index.ts | pino-pretty",
     "dev:debug": "nodemon --exec \"node -r ts-node/register --inspect-brk\" server/index.ts | pino-pretty",
     "lint": "eslint -c .eslintrc.js \"{server, test}/**/*.{js,ts,tsx}\" --quiet",
@@ -33,7 +34,7 @@
     "pino": "^6.8.0",
     "swagger-express-middleware": "^4.0.2",
     "webnative": "^0.21.4",
-    "webnative-filecoin": "^0.4.0"
+    "webnative-filecoin": "^0.5.6"
   },
   "devDependencies": {
     "@types/chai": "^4.2.14",

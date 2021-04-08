@@ -78,9 +78,10 @@ export const addTransaction = async (
   message: SignedMessage
 ): Promise<void> => {
   const { Value, To, From } = message.Message
+  const picoValue = filecoin.attoFilToPicoFil(Value)
   await client.query(
     `INSERT INTO transactions (userpubkey, messageid, amount, toAddress, fromAddress, status, time)
-     VALUES('${userKey}','${messageId}',${Value},'${To}','${From}',${
+     VALUES('${userKey}','${messageId}',${picoValue},'${To}','${From}',${
       MessageStatus.Sent
     },'${Date.now()}')`
   )
@@ -148,7 +149,7 @@ const txToReceipt = (tx: TransactionRaw): Receipt => ({
   messageId: tx.messageid,
   from: tx.fromaddress,
   to: tx.toaddress,
-  amount: filecoin.attoFilToFil(tx.amount),
+  amount: filecoin.picoFilToFil(tx.amount),
   time: parseInt(tx.time),
   blockheight: tx.blockheight,
   status: tx.status,
