@@ -2,6 +2,7 @@ import { Request, Response } from 'express'
 import * as lotus from '../../lib/lotus'
 import * as db from '../../lib/db'
 import * as filecoin from 'webnative-filecoin'
+import * as auth from '../../lib/auth'
 import { MessageStatus } from 'webnative-filecoin'
 
 export const createKeyPair = async (
@@ -138,6 +139,8 @@ export const cosignMessage = async (
   req: Request,
   res: Response
 ): Promise<void> => {
+  const isValid = await auth.validateUCAN(req.token)
+
   const message = req.body.message
   if (!filecoin.isMessage(message)) {
     res.status(400).send('Bad params')

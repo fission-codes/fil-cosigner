@@ -4,7 +4,7 @@ import { SignedMessage, Receipt, MessageStatus } from 'webnative-filecoin'
 import crypto from 'crypto'
 import * as lotus from './lotus'
 import { PairedKeys, TransactionRaw } from './types'
-import { CID } from 'webnative/ipfs'
+import { CID } from 'webnative/dist/ipfs'
 
 const client = new Client({
   connectionString: process.env.DATABASE_URL,
