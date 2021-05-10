@@ -11,7 +11,8 @@ const createTables = async () => {
     CREATE TABLE keypairs (
       userpubkey VARCHAR(511) PRIMARY KEY,
       privkey    VARCHAR(511) NOT NULL,
-      address    VARCHAR(511) NOT NULL
+      address    VARCHAR(511) NOT NULL,
+      rootdid    VARCHAR(511) NOT NULL
     );
   `)
 

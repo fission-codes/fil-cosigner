@@ -9,16 +9,18 @@ export const createKeyPair = async (
   req: Request,
   res: Response
 ): Promise<void> => {
-  const { publicKey } = req.body
-  if (!publicKey) {
-    res.status(400).send('Missing param: `publicKey`')
-    return
-  } else if (typeof publicKey !== 'string') {
-    res.status(400).send('Ill-formatted param: `publicKey` should be a string')
+  const { publicKey, rootDid } = req.body
+  if (!publicKey || typeof publicKey !== 'string') {
+    res.status(400).send('Bad param: `publicKey` should be a string')
     return
   }
+  if (!rootDid || typeof rootDid !== 'string') {
+    res.status(400).send('Bad param: `rootDid` should be a string')
+    return
+  }
+
   try {
-    const address = await db.createServerKey(publicKey)
+    const address = await db.createServerKey(publicKey, rootDid)
     const attoFilBalance = await lotus.getBalance(address)
     const balance = filecoin.attoFilToFil(attoFilBalance)
     res.status(200).send({ address, balance })
@@ -35,38 +37,43 @@ export const getWalletInfo = async (
   req: Request,
   res: Response
 ): Promise<void> => {
-  const { ownPubKey } = req.query
-  if (!ownPubKey || typeof ownPubKey !== 'string') {
+  const { publicKey } = req.query
+  if (!publicKey || typeof publicKey !== 'string') {
     res.status(400).send('Bad params')
     return
   }
-  const address = await db.getAggAddress(ownPubKey)
-  if (address === null) {
+  const aggPubKey = await db.getAggKey(publicKey)
+  if (aggPubKey === null) {
     res.status(404).send('Could not find user key')
     return
   }
+  const address = filecoin.pubToAddress(aggPubKey)
   const [attoFilBalance, providerBalance] = await Promise.all([
     lotus.getBalance(address),
-    db.getProviderBalance(ownPubKey),
+    db.getProviderBalance(publicKey),
   ])
   const balance = filecoin.attoFilToFil(attoFilBalance)
-  res.status(200).send({ address, balance, providerBalance })
+  const providerAddress = await lotus.defaultAddress()
+  res
+    .status(200)
+    .send({ address, balance, aggPubKey, providerBalance, providerAddress })
 }
 
 export const getAggregatedAddress = async (
   req: Request,
   res: Response
 ): Promise<void> => {
-  const { ownPubKey } = req.query
-  if (!ownPubKey || typeof ownPubKey !== 'string') {
+  const { publicKey } = req.query
+  if (!publicKey || typeof publicKey !== 'string') {
     res.status(400).send('Bad params')
     return
   }
-  const address = await db.getAggAddress(ownPubKey)
-  if (address === null) {
+  const aggPubKey = await db.getAggKey(publicKey)
+  if (aggPubKey === null) {
     res.status(404).send('Could not find user key')
     return
   }
+  const address = filecoin.pubToAddress(aggPubKey)
   res.status(200).send({ address })
 }
 
@@ -109,11 +116,12 @@ export const formatMsg = async (req: Request, res: Response): Promise<void> => {
   }
 
   const attoAmount = filecoin.filToAttoFil(amountNum)
-  const from = await db.getAggAddress(ownPubKey)
-  if (from === null) {
+  const aggKey = await db.getAggKey(ownPubKey)
+  if (aggKey === null) {
     res.status(404).send('Could not find user key')
     return
   }
+  const from = filecoin.pubToAddress(aggKey)
 
   const nonce = (await lotus.getNonce(from)) || 0
 
@@ -139,19 +147,27 @@ export const cosignMessage = async (
   req: Request,
   res: Response
 ): Promise<void> => {
-  const isValid = await auth.validateUCAN(req.token)
-
   const message = req.body.message
   if (!filecoin.isMessage(message)) {
-    res.status(400).send('Bad params')
+    res.status(400).send('Bad param, `message` should be a signed FIL message')
     return
   }
 
-  const { serverPrivKey, userPubKey } = await db.getKeysByAddress(
+  const { serverPrivKey, userPubKey, rootDid } = await db.getKeysByAddress(
     message.Message.From
   )
   if (serverPrivKey === null) {
     res.status(404).send('Could not find user key')
+    return
+  }
+
+  const maybeErr = await auth.validateUCAN(
+    req.token,
+    message.Message.From,
+    rootDid
+  )
+  if (maybeErr !== null) {
+    res.status(401).send(maybeErr.message)
     return
   }
 

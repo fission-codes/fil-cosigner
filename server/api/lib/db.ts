@@ -17,14 +17,17 @@ client.connect()
 
 export const UserAlreadyRegistered = new Error('User is already registered')
 
-export const createServerKey = async (userPubKey: string): Promise<string> => {
+export const createServerKey = async (
+  userPubKey: string,
+  rootDid: string
+): Promise<string> => {
   const privkey = crypto.randomBytes(32).toString('hex')
   const serverPubKey = filecoin.privToPub(privkey)
   const address = filecoin.pubToAggAddress(userPubKey, serverPubKey)
   try {
     await client.query(
-      `INSERT INTO keypairs (userpubkey, privkey, address) 
-       VALUES('${userPubKey}','${privkey}','${address}')`
+      `INSERT INTO keypairs (userpubkey, privkey, address, rootDid) 
+       VALUES('${userPubKey}','${privkey}','${address}', '${rootDid}')`
     )
   } catch (err) {
     if (err.code === '23505') {
@@ -36,13 +39,11 @@ export const createServerKey = async (userPubKey: string): Promise<string> => {
   return address
 }
 
-export const getAggAddress = async (
-  userPubKey: string
-): Promise<string | null> => {
+export const getAggKey = async (userPubKey: string): Promise<string | null> => {
   const privkey = await getMatchingKey(userPubKey)
   if (privkey === null) return null
   const serverPubKey = filecoin.privToPub(privkey)
-  return filecoin.pubToAggAddress(userPubKey, serverPubKey)
+  return filecoin.aggKeys(userPubKey, serverPubKey)
 }
 
 export const getMatchingKey = async (
@@ -69,6 +70,7 @@ export const getKeysByAddress = async (
   return {
     userPubKey: res.rows[0].userpubkey,
     serverPrivKey: res.rows[0].privkey,
+    rootDid: res.rows[0].rootdid,
   }
 }
 

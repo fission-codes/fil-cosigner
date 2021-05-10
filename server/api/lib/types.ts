@@ -16,6 +16,7 @@ export type LotusWaitResp = {
 export type PairedKeys = {
   userPubKey: string
   serverPrivKey: string
+  rootDid: string
 }
 
 export type TransactionRaw = {
