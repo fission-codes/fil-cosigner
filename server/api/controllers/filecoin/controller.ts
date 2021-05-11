@@ -286,3 +286,10 @@ export const getBlockHeight = async (
   const height = await lotus.currentBlockHeight()
   res.status(200).send({ height })
 }
+
+export const getServerDid = async (
+  _req: Request,
+  res: Response
+): Promise<void> => {
+  res.status(200).send({ did: auth.SERVER_DID })
+}

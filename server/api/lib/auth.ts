@@ -3,6 +3,9 @@ import * as filecoin from 'webnative-filecoin'
 import crypto from 'crypto'
 const webcrypto = (crypto as any).webcrypto.subtle
 
+export const SERVER_DID =
+  'did:key:z2AHoGyfRQZ3Zdf8BJiTr7KJpFbzrif6NbFP7rutAcsHHQ3pbzecLF5VfdPpGuQ57cPYcBKAkHjrWnbARcaXGfokLC5i2L4XKCSrDtg'
+
 webnative.setup.setDependencies({
   rsa: {
     verify: async (
@@ -38,7 +41,7 @@ export const validateUCAN = async (
   if (!isValid) {
     return new Error('Invalid UCAN')
   }
-  if (ucan.payload.aud !== 'server') {
+  if (ucan.payload.aud !== SERVER_DID) {
     return new Error('UCAN not intended for server')
   }
 
