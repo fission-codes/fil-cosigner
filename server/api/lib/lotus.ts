@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { CID } from 'webnative/ipfs'
+import { CID } from 'webnative/dist/ipfs'
 import { Address, SignedMessage, MessageBody, CIDObj } from 'webnative-filecoin'
 import { LotusWaitResp } from './types'
 
