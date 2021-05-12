@@ -8,10 +8,10 @@ client.connect()
 
 const wipe = async () => {
   await client.query(`
-    DELETE FROM transactions;
+    DROP TABLE transactions;
   `)
   await client.query(`
-    DELETE FROM keypairs;
+    DROP TABLE keypairs;
   `)
   console.log('DONE!')
 }
