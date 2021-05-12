@@ -19,6 +19,11 @@ export type PairedKeys = {
   rootDid: string
 }
 
+export type AggKeyAndAddr = {
+  address: string
+  aggPubKey: string
+}
+
 export type TransactionRaw = {
   messageid: string
   amount: string

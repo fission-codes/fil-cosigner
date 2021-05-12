@@ -20,10 +20,20 @@ export const createKeyPair = async (
   }
 
   try {
-    const address = await db.createServerKey(publicKey, rootDid)
-    const attoFilBalance = await lotus.getBalance(address)
+    const { aggPubKey, address } = await db.createServerKey(publicKey, rootDid)
+    const [
+      attoFilBalance,
+      providerBalance,
+      providerAddress,
+    ] = await Promise.all([
+      lotus.getBalance(address),
+      db.getProviderBalance(publicKey),
+      lotus.defaultAddress(),
+    ])
     const balance = filecoin.attoFilToFil(attoFilBalance)
-    res.status(200).send({ address, balance })
+    res
+      .status(200)
+      .send({ address, balance, aggPubKey, providerBalance, providerAddress })
   } catch (err) {
     if (err === db.UserAlreadyRegistered) {
       res.status(409).send(err.toString())
@@ -42,18 +52,18 @@ export const getWalletInfo = async (
     res.status(400).send('Bad params')
     return
   }
-  const aggPubKey = await db.getAggKey(publicKey)
-  if (aggPubKey === null) {
+  const keyInfo = await db.getAggKey(publicKey)
+  if (keyInfo === null) {
     res.status(404).send('Could not find user key')
     return
   }
-  const address = filecoin.pubToAddress(aggPubKey)
-  const [attoFilBalance, providerBalance] = await Promise.all([
+  const { address, aggPubKey } = keyInfo
+  const [attoFilBalance, providerBalance, providerAddress] = await Promise.all([
     lotus.getBalance(address),
     db.getProviderBalance(publicKey),
+    lotus.defaultAddress(),
   ])
   const balance = filecoin.attoFilToFil(attoFilBalance)
-  const providerAddress = await lotus.defaultAddress()
   res
     .status(200)
     .send({ address, balance, aggPubKey, providerBalance, providerAddress })
@@ -68,12 +78,12 @@ export const getAggregatedAddress = async (
     res.status(400).send('Bad params')
     return
   }
-  const aggPubKey = await db.getAggKey(publicKey)
-  if (aggPubKey === null) {
+  const keyInfo = await db.getAggKey(publicKey)
+  if (keyInfo === null) {
     res.status(404).send('Could not find user key')
     return
   }
-  const address = filecoin.pubToAddress(aggPubKey)
+  const address = keyInfo.address
   res.status(200).send({ address })
 }
 
@@ -116,12 +126,12 @@ export const formatMsg = async (req: Request, res: Response): Promise<void> => {
   }
 
   const attoAmount = filecoin.filToAttoFil(amountNum)
-  const aggKey = await db.getAggKey(ownPubKey)
-  if (aggKey === null) {
+  const keyInfo = await db.getAggKey(ownPubKey)
+  if (keyInfo === null) {
     res.status(404).send('Could not find user key')
     return
   }
-  const from = filecoin.pubToAddress(aggKey)
+  const from = keyInfo.address
 
   const nonce = (await lotus.getNonce(from)) || 0
 

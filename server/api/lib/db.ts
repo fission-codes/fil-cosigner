@@ -3,7 +3,7 @@ import * as filecoin from 'webnative-filecoin'
 import { SignedMessage, Receipt, MessageStatus } from 'webnative-filecoin'
 import crypto from 'crypto'
 import * as lotus from './lotus'
-import { PairedKeys, TransactionRaw } from './types'
+import { AggKeyAndAddr, PairedKeys, TransactionRaw } from './types'
 import { CID } from 'webnative/dist/ipfs'
 
 const client = new Client({
@@ -20,10 +20,11 @@ export const UserAlreadyRegistered = new Error('User is already registered')
 export const createServerKey = async (
   userPubKey: string,
   rootDid: string
-): Promise<string> => {
+): Promise<AggKeyAndAddr> => {
   const privkey = crypto.randomBytes(32).toString('hex')
   const serverPubKey = filecoin.privToPub(privkey)
-  const address = filecoin.pubToAggAddress(userPubKey, serverPubKey)
+  const aggPubKey = filecoin.aggKeys(userPubKey, serverPubKey)
+  const address = filecoin.pubToAddress(aggPubKey)
   try {
     await client.query(
       `INSERT INTO keypairs (userpubkey, privkey, address, rootDid) 
@@ -36,14 +37,18 @@ export const createServerKey = async (
       throw err
     }
   }
-  return address
+  return { aggPubKey, address }
 }
 
-export const getAggKey = async (userPubKey: string): Promise<string | null> => {
+export const getAggKey = async (
+  userPubKey: string
+): Promise<AggKeyAndAddr | null> => {
   const privkey = await getMatchingKey(userPubKey)
   if (privkey === null) return null
   const serverPubKey = filecoin.privToPub(privkey)
-  return filecoin.aggKeys(userPubKey, serverPubKey)
+  const aggPubKey = filecoin.aggKeys(userPubKey, serverPubKey)
+  const address = filecoin.pubToAddress(aggPubKey)
+  return { aggPubKey, address }
 }
 
 export const getMatchingKey = async (
