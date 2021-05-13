@@ -3,6 +3,7 @@ import * as filecoin from 'webnative-filecoin'
 import { SignedMessage, Receipt, MessageStatus } from 'webnative-filecoin'
 import crypto from 'crypto'
 import * as lotus from './lotus'
+import * as error from './error'
 import { AggKeyAndAddr, PairedKeys, TransactionRaw } from './types'
 import { CID } from 'webnative/dist/ipfs'
 
@@ -32,9 +33,9 @@ export const createServerKey = async (
     )
   } catch (err) {
     if (err.code === '23505') {
-      throw UserAlreadyRegistered
+      error.raise(409, 'User is already registerd')
     } else {
-      throw err
+      error.raise(500, 'Unknown database error')
     }
   }
   return { aggPubKey, address }

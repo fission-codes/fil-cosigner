@@ -1,4 +1,5 @@
 import axios from 'axios'
+import * as error from './error'
 import { CID } from 'webnative/dist/ipfs'
 import { Address, SignedMessage, MessageBody, CIDObj } from 'webnative-filecoin'
 import { LotusWaitResp } from './types'
@@ -15,17 +16,27 @@ const AUTH = {
   },
 }
 
-export const sendReq = async (method: string, params: any[]): Promise<any> => {
-  const response = await axios.post(
-    RPC_API,
-    {
-      ...request,
-      method: `Filecoin.${method}`,
-      params,
-    },
-    AUTH
-  )
-  return response.data.result
+export const sendReq = async (
+  method: string,
+  params: unknown[]
+): Promise<any> => {
+  try {
+    const response = await axios.post(
+      RPC_API,
+      {
+        ...request,
+        method: `Filecoin.${method}`,
+        params,
+      },
+      AUTH
+    )
+    return response.data.result
+  } catch (err) {
+    error.raise(
+      500,
+      `Could not call ${method} on Lotus node: ${err.toString()}`
+    )
+  }
 }
 
 export const getBalance = async (address: string): Promise<string> => {
@@ -37,7 +48,7 @@ export const getNonce = async (address: string): Promise<number> => {
   return sendReq('MpoolGetNonce', [address])
 }
 
-export const validateAddress = async (address: string) => {
+export const validateAddress = async (address: string): Promise<boolean> => {
   return sendReq('WalletValidateAddress', [address])
 }
 
