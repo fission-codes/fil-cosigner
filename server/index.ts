@@ -1,6 +1,32 @@
-import './common/env'
-import Server from './common/server'
-import routes from './routes'
+import dotenv from 'dotenv'
+dotenv.config()
 
+import express from 'express'
+import bodyParser from 'body-parser'
+import bearerToken from 'express-bearer-token'
+import cors from 'cors'
+import filecoinRouter from './filecoin'
+
+// make our server
+const app = express()
+
+// middleware
+app.use(bodyParser.json({ limit: process.env.REQUEST_LIMIT || '100kb' }))
+app.use(
+  bodyParser.urlencoded({
+    extended: true,
+    limit: process.env.REQUEST_LIMIT || '100kb',
+  })
+)
+app.use(bodyParser.text({ limit: process.env.REQUEST_LIMIT || '100kb' }))
+app.use(bearerToken())
+app.use(cors())
+
+// routes
+app.use('/api/v1/filecoin', filecoinRouter)
+
+// fire it up
 const port = parseInt(process.env.PORT)
-export default new Server().router(routes).listen(port)
+app.listen(port, () => {
+  console.log(`up and running at at http://localhost:${port}`)
+})
