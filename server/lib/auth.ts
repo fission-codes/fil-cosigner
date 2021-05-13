@@ -1,5 +1,6 @@
 import * as webnative from 'webnative'
 import * as filecoin from 'webnative-filecoin'
+import * as error from './error'
 import crypto from 'crypto'
 const webcrypto = (crypto as any).webcrypto.subtle
 
@@ -35,19 +36,19 @@ export const validateUCAN = async (
   encoded: string,
   address: string,
   rootDid: string
-): Promise<Error | null> => {
+): Promise<void> => {
   const ucan = webnative.ucan.decode(encoded)
   const isValid = await webnative.ucan.isValid(ucan)
   if (!isValid) {
-    return new Error('Invalid UCAN')
+    error.raise(401, 'Invalid UCAN')
   }
   if (ucan.payload.aud !== SERVER_DID) {
-    return new Error('UCAN not intended for server')
+    error.raise(401, 'UCAN not intended for server')
   }
 
   const expectedRoot = await webnative.ucan.rootIssuer(encoded)
   if (expectedRoot !== rootDid) {
-    return new Error('UCAN does not come from registered root DID')
+    error.raise(401, 'UCAN does not come from registered root DID')
   }
 
   const signingDid = webnative.did.publicKeyToDid(
@@ -58,7 +59,6 @@ export const validateUCAN = async (
     typeof ucan.payload.rsc === 'object' &&
     ucan.payload.rsc.cosign !== signingDid
   ) {
-    return new Error('UCAN is not for the given FIL address')
+    error.raise(401, 'UCAN is not for the given FIL address')
   }
-  return null
 }
