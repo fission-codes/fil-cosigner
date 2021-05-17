@@ -62,7 +62,7 @@ export const validateUCAN = async (
   ) {
     error.raise(401, 'UCAN is not for the given FIL address')
   }
-  if (filecoin.withinSpendLimit(amount, ucan)) {
+  if (!filecoin.withinSpendLimit(amount, ucan)) {
     error.raise(401, 'Transaction amount exceeds UCAN spend limit')
   }
 }
