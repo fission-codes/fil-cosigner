@@ -242,9 +242,9 @@
   integrity sha512-cxWFQVseBm6O9Gbw1IWb8r6OS4OhSt3hPZLkFApLjM8TEXROBuQGLAH2i2gZpcXdLBIrpXuTDhH7Vbm1iXmNGA==
 
 "@types/lodash@^4.14.168":
-  version "4.14.168"
-  resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.168.tgz#fe24632e79b7ade3f132891afff86caa5e5ce008"
-  integrity sha512-oVfRvqHV/V6D1yifJbVRU3TMp8OT6o6BG+U9MkwuJ3U8/CsDHvalRpsxBqivn71ztOFZBTfJMvETbqHiaNSj7Q==
+  version "4.14.169"
+  resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.169.tgz#83c217688f07a4d9ef8f28a3ebd1d318f6ff4cbb"
+  integrity sha512-DvmZHoHTFJ8zhVYwCLWbQ7uAbYQEk52Ev2/ZiQ7Y7gQGeV9pjBqjnQpECMHfKS1rCYAhMI7LHVxwyZLZinJgdw==
 
 "@types/long@^4.0.1":
   version "4.0.1"
@@ -4181,10 +4181,10 @@ web-encoding@^1.0.2, web-encoding@^1.0.6:
   optionalDependencies:
     "@zxing/text-encoding" "0.9.0"
 
-webnative-filecoin@^0.6.0:
-  version "0.6.0"
-  resolved "https://registry.yarnpkg.com/webnative-filecoin/-/webnative-filecoin-0.6.0.tgz#3611a3d1935f1b6fd4e7def3cffc4c4bcf8faf61"
-  integrity sha512-iPF72sCNAiqHDmPr9AEkylg4BKM12h3cJ6Hx/r8qYPN798KZeIci71AksVByMMO9MG0N5UWx2WIWoPl8DQMa2Q==
+webnative-filecoin@^0.6.7:
+  version "0.6.7"
+  resolved "https://registry.yarnpkg.com/webnative-filecoin/-/webnative-filecoin-0.6.7.tgz#1bc22138e40dc0564f361b90d2459dbe6dff0d0b"
+  integrity sha512-/pekUT2QvgO1UnN0qq6uD1ToZmv2XYYeJyw/gmpFI8wbe8MlCzsdHAgJ2UDsZFPLfbhoLXvatF1e9XCYAk1WoA==
   dependencies:
     "@glif/filecoin-address" "^1.1.0-beta.18"
     "@types/lodash" "^4.14.168"

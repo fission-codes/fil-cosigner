@@ -35,7 +35,8 @@ webnative.setup.setDependencies({
 export const validateUCAN = async (
   encoded: string,
   address: string,
-  rootDid: string
+  rootDid: string,
+  amount: number
 ): Promise<void> => {
   const ucan = webnative.ucan.decode(encoded)
   const isValid = await webnative.ucan.isValid(ucan)
@@ -60,5 +61,8 @@ export const validateUCAN = async (
     ucan.payload.rsc.cosign !== signingDid
   ) {
     error.raise(401, 'UCAN is not for the given FIL address')
+  }
+  if (filecoin.withinSpendLimit(amount, ucan)) {
+    error.raise(401, 'Transaction amount exceeds UCAN spend limit')
   }
 }
