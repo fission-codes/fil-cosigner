@@ -71,7 +71,8 @@ export const cosign = async (
       error.raise(404, 'Could not find user key')
     }
 
-    await auth.validateUCAN(req.token, message.Message.From, rootDid)
+    const amount = filecoin.attoFilToFil(message.Message.Value)
+    await auth.validateUCAN(req.token, message.Message.From, rootDid, amount)
 
     const serverSigned = await filecoin.signLotusMessage(
       message.Message,
