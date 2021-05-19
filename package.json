@@ -34,7 +34,7 @@
     "pg": "^8.5.1",
     "pino": "^6.8.0",
     "swagger-express-middleware": "^4.0.2",
-    "webnative": "0.24.2-alpha-2",
+    "webnative": "0.25.2",
     "webnative-filecoin": "^0.6.7"
   },
   "devDependencies": {
