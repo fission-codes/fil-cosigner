@@ -6,8 +6,10 @@
   "scripts": {
     "start": "node dist/index.js",
     "build": "ts-node build.ts && tsc",
-    "setup-db": "ts-node db/setup.ts",
-    "clear-txs": "ts-node db/cleartxs.ts",
+    "setup-db": "ts-node scripts/setupDb.ts",
+    "clear-txs": "ts-node scripts/clearTxs.ts",
+    "wipe-db": "ts-node scripts/wipeDb.ts",
+    "create-pow-user": "ts-node scripts/createPowUser.ts",
     "dev": "nodemon server/index.ts | pino-pretty",
     "dev:debug": "nodemon --exec \"node -r ts-node/register --inspect-brk\" server/index.ts | pino-pretty",
     "lint": "eslint -c .eslintrc.js \"{server, test}/**/*.{js,ts,tsx}\" --quiet",
@@ -17,6 +19,7 @@
   },
   "dependencies": {
     "@glif/filecoin-address": "^1.1.0-beta.18",
+    "@textile/powergate-client": "^4.1.0",
     "axios": "^0.21.1",
     "base32-decode": "^1.0.0",
     "blakejs": "^1.1.0",
@@ -58,5 +61,5 @@
     "ts-node": "^9.1.1",
     "typescript": "^4.1.3"
   },
-  "author": "Carmine DiMascio <cdimascio@gmail.com> (https://github.com/cdimascio)"
+  "author": "Daniel Holmgren <daniel@fission.codes> (https://github.com/dholms)"
 }

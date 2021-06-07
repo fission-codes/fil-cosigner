@@ -1,6 +1,7 @@
 import express from 'express'
 import * as wallet from './wallet'
 import * as message from './message'
+import * as storage from './storage'
 import * as misc from './misc'
 
 export default express
@@ -18,6 +19,9 @@ export default express
   .get('/message/:cid', message.getStatus)
   .get('/waitmsg/:cid', message.waitForReceipt)
   .get('/receipts/:publicKey', message.getPastReceipts)
+
+  // storage
+  .get('/buildinfo', storage.getBuildInfo)
 
   // misc
   .get('/provider/address', misc.getProviderAddress)
