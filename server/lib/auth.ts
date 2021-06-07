@@ -4,8 +4,7 @@ import * as error from './error'
 import crypto from 'crypto'
 const webcrypto = (crypto as any).webcrypto.subtle
 
-export const SERVER_DID =
-  'did:key:z2AHoGyfRQZ3Zdf8BJiTr7KJpFbzrif6NbFP7rutAcsHHQ3pbzecLF5VfdPpGuQ57cPYcBKAkHjrWnbARcaXGfokLC5i2L4XKCSrDtg'
+export const SERVER_DID = process.env.SERVER_DID
 
 webnative.setup.setDependencies({
   rsa: {
