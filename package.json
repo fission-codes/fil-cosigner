@@ -33,6 +33,7 @@
     "noble-bls12-381": "^0.9.0",
     "pg": "^8.5.1",
     "pino": "^6.8.0",
+    "pino-http": "^5.5.0",
     "swagger-express-middleware": "^4.0.2",
     "webnative": "0.25.2",
     "webnative-filecoin": "^0.6.7"
