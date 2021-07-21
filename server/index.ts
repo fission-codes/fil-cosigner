@@ -2,7 +2,6 @@ import dotenv from 'dotenv'
 dotenv.config()
 
 import express from 'express'
-import logger from 'pino-http'
 import bodyParser from 'body-parser'
 import bearerToken from 'express-bearer-token'
 import cors from 'cors'
@@ -22,7 +21,6 @@ app.use(
 app.use(bodyParser.text({ limit: process.env.REQUEST_LIMIT || '100kb' }))
 app.use(bearerToken())
 app.use(cors())
-app.use(logger())
 
 // routes
 app.use('/api/v1/filecoin', filecoinRouter)
