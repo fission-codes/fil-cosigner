@@ -4181,10 +4181,10 @@ web-encoding@^1.0.2, web-encoding@^1.0.6:
   optionalDependencies:
     "@zxing/text-encoding" "0.9.0"
 
-webnative-filecoin@^0.6.7:
-  version "0.6.7"
-  resolved "https://registry.yarnpkg.com/webnative-filecoin/-/webnative-filecoin-0.6.7.tgz#1bc22138e40dc0564f361b90d2459dbe6dff0d0b"
-  integrity sha512-/pekUT2QvgO1UnN0qq6uD1ToZmv2XYYeJyw/gmpFI8wbe8MlCzsdHAgJ2UDsZFPLfbhoLXvatF1e9XCYAk1WoA==
+webnative-filecoin@^0.6.8:
+  version "0.6.8"
+  resolved "https://registry.yarnpkg.com/webnative-filecoin/-/webnative-filecoin-0.6.8.tgz#a56de08a3470b8739eb332f3c574bf25acb0d749"
+  integrity sha512-a0/EKfwYK77HFJChqwoLz/hEH3nloJbL2c7ZI7CX8cOBTt2aRlnyPiAdfWOPGux56UCQzIsxFl4v14u8mNxhIw==
   dependencies:
     "@glif/filecoin-address" "^1.1.0-beta.18"
     "@types/lodash" "^4.14.168"
@@ -4199,26 +4199,7 @@ webnative-filecoin@^0.6.7:
     lowercase-keys "^2.0.0"
     noble-bls12-381 "^0.9.0"
     stream "^0.0.2"
-    webnative "0.24.2-alpha-2"
-
-webnative@0.24.2-alpha-2:
-  version "0.24.2-alpha-2"
-  resolved "https://registry.yarnpkg.com/webnative/-/webnative-0.24.2-alpha-2.tgz#d9da53cf9f8a23f3536c7a7113d21b62fa175ec3"
-  integrity sha512-TY2603grSzUwSsRKBIofn5/A9Jh3xtBwhk2uxiio14SAtH4vwSa2K4xXVEjBM89MfuqAZCReKTWXpioMXaQeIg==
-  dependencies:
-    base58-universal "^1.0.0"
-    borc "^2.1.1"
-    buffer "^6.0.3"
-    cids "^1.1.5"
-    fission-bloom-filters "1.6.0"
-    ipfs-message-port-client "https://ipfs.runfission.com/ipfs/bafybeigx6q4aezve7my76s5vvfuiinbxtepapqvmjf2jbgrozrut6cjape/p/ipfs-message-port-client.tar.gz"
-    ipfs-message-port-protocol "https://ipfs.runfission.com/ipfs/bafybeigx6q4aezve7my76s5vvfuiinbxtepapqvmjf2jbgrozrut6cjape/p/ipfs-message-port-protocol.tar.gz"
-    ipld-dag-pb "^0.20.0"
-    keystore-idb "0.14.1"
-    localforage "^1.9.0"
-    make-error "^1.3.6"
-    noble-ed25519 "^1.0.4"
-    throttle-debounce "^2.2.1"
+    webnative "0.25.2"
 
 webnative@0.25.2:
   version "0.25.2"
