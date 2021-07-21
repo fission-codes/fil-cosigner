@@ -4,16 +4,19 @@ import { CID } from 'webnative/dist/ipfs'
 import { Address, SignedMessage, MessageBody, CIDObj } from 'webnative-filecoin'
 import { LotusWaitResp } from './types'
 
-const RPC_API = 'http://127.0.0.1:1234/rpc/v0'
+const RPC_API = `http://${process.env.LOTUS_HOST || '127.0.0.1:1234'}/rpc/v0`
 const request = {
   jsonrpc: '2.0',
   id: 1,
 }
 
-const AUTH = {
-  headers: {
-    Authorization: process.env.LOTUS_TOKEN,
-  },
+let AUTH = {}
+if (process.env.LOTUS_TOKEN) {
+  AUTH = {
+    headers: {
+      Authorization: process.env.LOTUS_TOKEN,
+    },
+  }
 }
 
 export const sendReq = async (
