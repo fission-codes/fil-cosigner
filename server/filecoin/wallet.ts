@@ -23,7 +23,10 @@ export const create = async (
     const [attoFilBalance, providerAddress] = await Promise.all([
       lotus.getBalance(address),
       lotus.defaultAddress(),
-    ])
+    ]).catch((err) => {
+      error.raise(500, err.toString())
+      throw err
+    })
     const providerBalance = 0 // new account
     const balance = filecoin.attoFilToFil(attoFilBalance)
     res
@@ -55,7 +58,10 @@ export const get = async (
       lotus.getBalance(address),
       db.getProviderBalance(publicKey),
       lotus.defaultAddress(),
-    ])
+    ]).catch((err) => {
+      error.raise(500, err.toString())
+      throw err
+    })
     const balance = filecoin.attoFilToFil(attoFilBalance)
     res
       .status(200)
@@ -89,9 +95,13 @@ export const getBalance = async (
   error.handle(next, async () => {
     const address = req.params.address
     verifyStringParam(address, 'address')
-
-    const attoFilBalance = await lotus.getBalance(address)
-    const balance = filecoin.attoFilToFil(attoFilBalance)
+    let balance
+    try {
+      const attoFilBalance = await lotus.getBalance(address)
+      balance = filecoin.attoFilToFil(attoFilBalance)
+    } catch (err) {
+      error.raise(500, err.toString())
+    }
     res.status(200).send({ balance })
   })
 }

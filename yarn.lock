@@ -1647,18 +1647,6 @@ fast-safe-stringify@^2.0.7:
   resolved "https://registry.yarnpkg.com/fast-safe-stringify/-/fast-safe-stringify-2.0.7.tgz#124aa885899261f68aedb42a7c080de9da608743"
   integrity sha512-Utm6CdzT+6xsDk2m8S6uL8VHxNwI6Jub+e9NYTcAms28T84pTa25GJQV9j0CY0N1rM8hK4x6grpF2BQf+2qwVA==
 
-fast-safe-stringify@^2.0.8:
-  version "2.0.8"
-  resolved "https://registry.yarnpkg.com/fast-safe-stringify/-/fast-safe-stringify-2.0.8.tgz#dc2af48c46cf712b683e849b2bbd446b32de936f"
-  integrity sha512-lXatBjf3WPjmWD6DpIZxkeSsCOwqI0maYMpgDlx8g4U2qi4lbjA9oH/HD2a87G+KfsUmo5WbJFmqBZlPxtptag==
-
-fast-url-parser@^1.1.3:
-  version "1.1.3"
-  resolved "https://registry.yarnpkg.com/fast-url-parser/-/fast-url-parser-1.1.3.tgz#f4af3ea9f34d8a271cf58ad2b3759f431f0b318d"
-  integrity sha1-9K8+qfNNiicc9YrSs3WfQx8LMY0=
-  dependencies:
-    punycode "^1.3.2"
-
 fastq@^1.6.0:
   version "1.11.0"
   resolved "https://registry.yarnpkg.com/fastq/-/fastq-1.11.0.tgz#bb9fb955a07130a918eb63c1f5161cc32a5d0858"
@@ -3183,15 +3171,6 @@ picomatch@^2.0.4, picomatch@^2.2.1, picomatch@^2.2.3:
   resolved "https://registry.yarnpkg.com/picomatch/-/picomatch-2.2.3.tgz#465547f359ccc206d3c48e46a1bcb89bf7ee619d"
   integrity sha512-KpELjfwcCDUb9PeigTs2mBJzXUPzAuP2oPcA989He8Rte0+YUAjw1JVedDhuTKPkHjSYzMN3npC9luThGYEKdg==
 
-pino-http@^5.5.0:
-  version "5.5.0"
-  resolved "https://registry.yarnpkg.com/pino-http/-/pino-http-5.5.0.tgz#b91e02714cc40b13fc3d82222fc1a96f0c99d6ea"
-  integrity sha512-ZXhWeYhUisf9oZdS54XaBTrNVzZ7p61/sw0RpwCdU1vI/qdGWvSG4QUA5qU5Y5ya47ch3kM3HTcZf/QB5SCtNw==
-  dependencies:
-    fast-url-parser "^1.1.3"
-    pino "^6.0.0"
-    pino-std-serializers "^2.4.0"
-
 pino-pretty@^4.3.0:
   version "4.7.1"
   resolved "https://registry.yarnpkg.com/pino-pretty/-/pino-pretty-4.7.1.tgz#499cf185e110399deae731221c899915c811bd1a"
@@ -3209,27 +3188,10 @@ pino-pretty@^4.3.0:
     split2 "^3.1.1"
     strip-json-comments "^3.1.1"
 
-pino-std-serializers@^2.4.0:
-  version "2.5.0"
-  resolved "https://registry.yarnpkg.com/pino-std-serializers/-/pino-std-serializers-2.5.0.tgz#40ead781c65a0ce7ecd9c1c33f409d31fe712315"
-  integrity sha512-wXqbqSrIhE58TdrxxlfLwU9eDhrzppQDvGhBEr1gYbzzM4KKo3Y63gSjiDXRKLVS2UOXdPNR2v+KnQgNrs+xUg==
-
 pino-std-serializers@^3.1.0:
   version "3.2.0"
   resolved "https://registry.yarnpkg.com/pino-std-serializers/-/pino-std-serializers-3.2.0.tgz#b56487c402d882eb96cd67c257868016b61ad671"
   integrity sha512-EqX4pwDPrt3MuOAAUBMU0Tk5kR/YcCM5fNPEzgCO2zJ5HfX0vbiH9HbJglnyeQsN96Kznae6MWD47pZB5avTrg==
-
-pino@^6.0.0:
-  version "6.12.0"
-  resolved "https://registry.yarnpkg.com/pino/-/pino-6.12.0.tgz#2281521620d70eeff519039467352d656f46735e"
-  integrity sha512-5NGopOcUusGuklGHVVv9az0Hv/Dj3urHhD3G+zhl5pBGIRYAeGCi/Ej6YCl16Q2ko28cmYiJz+/qRoJiwy62Rw==
-  dependencies:
-    fast-redact "^3.0.0"
-    fast-safe-stringify "^2.0.8"
-    flatstr "^1.0.12"
-    pino-std-serializers "^3.1.0"
-    quick-format-unescaped "^4.0.3"
-    sonic-boom "^1.0.2"
 
 pino@^6.8.0:
   version "6.11.3"
@@ -3351,11 +3313,6 @@ pump@^3.0.0:
   dependencies:
     end-of-stream "^1.1.0"
     once "^1.3.1"
-
-punycode@^1.3.2:
-  version "1.4.1"
-  resolved "https://registry.yarnpkg.com/punycode/-/punycode-1.4.1.tgz#c0d5a63b2718800ad8e1eb0fa5269c84dd41845e"
-  integrity sha1-wNWmOycYgArY4esPpSachN1BhF4=
 
 punycode@^2.1.0:
   version "2.1.1"
@@ -4224,10 +4181,10 @@ web-encoding@^1.0.2, web-encoding@^1.0.6:
   optionalDependencies:
     "@zxing/text-encoding" "0.9.0"
 
-webnative-filecoin@^0.6.7:
-  version "0.6.7"
-  resolved "https://registry.yarnpkg.com/webnative-filecoin/-/webnative-filecoin-0.6.7.tgz#1bc22138e40dc0564f361b90d2459dbe6dff0d0b"
-  integrity sha512-/pekUT2QvgO1UnN0qq6uD1ToZmv2XYYeJyw/gmpFI8wbe8MlCzsdHAgJ2UDsZFPLfbhoLXvatF1e9XCYAk1WoA==
+webnative-filecoin@^0.6.8:
+  version "0.6.8"
+  resolved "https://registry.yarnpkg.com/webnative-filecoin/-/webnative-filecoin-0.6.8.tgz#a56de08a3470b8739eb332f3c574bf25acb0d749"
+  integrity sha512-a0/EKfwYK77HFJChqwoLz/hEH3nloJbL2c7ZI7CX8cOBTt2aRlnyPiAdfWOPGux56UCQzIsxFl4v14u8mNxhIw==
   dependencies:
     "@glif/filecoin-address" "^1.1.0-beta.18"
     "@types/lodash" "^4.14.168"
@@ -4242,26 +4199,7 @@ webnative-filecoin@^0.6.7:
     lowercase-keys "^2.0.0"
     noble-bls12-381 "^0.9.0"
     stream "^0.0.2"
-    webnative "0.24.2-alpha-2"
-
-webnative@0.24.2-alpha-2:
-  version "0.24.2-alpha-2"
-  resolved "https://registry.yarnpkg.com/webnative/-/webnative-0.24.2-alpha-2.tgz#d9da53cf9f8a23f3536c7a7113d21b62fa175ec3"
-  integrity sha512-TY2603grSzUwSsRKBIofn5/A9Jh3xtBwhk2uxiio14SAtH4vwSa2K4xXVEjBM89MfuqAZCReKTWXpioMXaQeIg==
-  dependencies:
-    base58-universal "^1.0.0"
-    borc "^2.1.1"
-    buffer "^6.0.3"
-    cids "^1.1.5"
-    fission-bloom-filters "1.6.0"
-    ipfs-message-port-client "https://ipfs.runfission.com/ipfs/bafybeigx6q4aezve7my76s5vvfuiinbxtepapqvmjf2jbgrozrut6cjape/p/ipfs-message-port-client.tar.gz"
-    ipfs-message-port-protocol "https://ipfs.runfission.com/ipfs/bafybeigx6q4aezve7my76s5vvfuiinbxtepapqvmjf2jbgrozrut6cjape/p/ipfs-message-port-protocol.tar.gz"
-    ipld-dag-pb "^0.20.0"
-    keystore-idb "0.14.1"
-    localforage "^1.9.0"
-    make-error "^1.3.6"
-    noble-ed25519 "^1.0.4"
-    throttle-debounce "^2.2.1"
+    webnative "0.25.2"
 
 webnative@0.25.2:
   version "0.25.2"

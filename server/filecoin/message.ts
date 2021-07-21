@@ -139,9 +139,14 @@ export const waitForReceipt = async (
   error.handle(next, async () => {
     const { cid } = req.params
     verifyStringParam(cid, 'cid')
-    const waitResult = await lotus.waitMsg(cid as string)
-    const msg = await lotus.getMsg(cid as string)
+    let waitResult, msg
 
+    try {
+      waitResult = await lotus.waitMsg(cid as string)
+      msg = await lotus.getMsg(cid as string)
+    } catch (e) {
+      error.raise(500, e.toString())
+    }
     res.status(200).send({
       cid: cid,
       from: msg.From,

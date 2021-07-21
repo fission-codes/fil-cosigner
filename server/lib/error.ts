@@ -1,4 +1,7 @@
 import { NextFunction } from 'express'
+import pino from 'pino'
+
+const logger = pino()
 
 export const handle = async (
   next: NextFunction,
@@ -12,6 +15,7 @@ export const handle = async (
 }
 
 export const raise = (code: number, msg: string): void => {
+  logger.error(msg)
   const err = new Error(msg)
   // @ts-ignore
   err.status = code
