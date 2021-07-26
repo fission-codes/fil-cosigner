@@ -5,7 +5,15 @@ import express from 'express'
 import bodyParser from 'body-parser'
 import bearerToken from 'express-bearer-token'
 import cors from 'cors'
+import * as filecoin from 'webnative-filecoin'
 import filecoinRouter from './filecoin'
+
+// Configure webnative-filecoin from ENV
+filecoin.setup.server({
+  networkPrefix: process.env.NETWORK_PREFIX || 't',
+  maxFil: Number.parseInt(process.env.MAX_FIL) || 1,
+  expiry: Number.parseInt(process.env.EXPIRY) || 3600,
+})
 
 // make our server
 const app = express()
