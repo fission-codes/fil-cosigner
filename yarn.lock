@@ -4181,10 +4181,10 @@ web-encoding@^1.0.2, web-encoding@^1.0.6:
   optionalDependencies:
     "@zxing/text-encoding" "0.9.0"
 
-webnative-filecoin@^0.6.8:
-  version "0.6.8"
-  resolved "https://registry.yarnpkg.com/webnative-filecoin/-/webnative-filecoin-0.6.8.tgz#a56de08a3470b8739eb332f3c574bf25acb0d749"
-  integrity sha512-a0/EKfwYK77HFJChqwoLz/hEH3nloJbL2c7ZI7CX8cOBTt2aRlnyPiAdfWOPGux56UCQzIsxFl4v14u8mNxhIw==
+webnative-filecoin@^0.6.10:
+  version "0.6.10"
+  resolved "https://registry.yarnpkg.com/webnative-filecoin/-/webnative-filecoin-0.6.10.tgz#0e033e70551c1c1388a499fa16b758f6769fe002"
+  integrity sha512-jR0lFzPAiwDZLK36UWOF+6Qt1rYUXwpOI49vm8IVtq/WpNUUUvfSGwahHNuOxKc8wxsHEQzAneA20YKBYb5YcQ==
   dependencies:
     "@glif/filecoin-address" "^1.1.0-beta.18"
     "@types/lodash" "^4.14.168"
