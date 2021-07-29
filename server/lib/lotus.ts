@@ -49,7 +49,7 @@ export const getBalance = async (address: string): Promise<string> => {
 }
 
 export const getActor = async (address: string): Promise<any> => {
-  return sendReq('StateGetActor', [address])
+  return sendReq('StateGetActor', [address, []])
 }
 
 export const validateAddress = async (address: string): Promise<boolean> => {
