@@ -48,8 +48,8 @@ export const getBalance = async (address: string): Promise<string> => {
   return balance === null ? '0' : balance
 }
 
-export const getNonce = async (address: string): Promise<number> => {
-  return sendReq('MpoolGetNonce', [address])
+export const getActor = async (address: string): Promise<any> => {
+  return sendReq('StateGetActor', [address, []])
 }
 
 export const validateAddress = async (address: string): Promise<boolean> => {
