@@ -32,7 +32,8 @@ export const format = async (
       return
     }
     const from = keyInfo.address
-    const nonce = (await lotus.getNonce(from)) || 0
+    const actor = await lotus.getActor(from)
+    const nonce = actor.Nonce || 0
 
     const formatted = {
       Version: 0,
