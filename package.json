@@ -35,7 +35,7 @@
     "pino": "^6.8.0",
     "swagger-express-middleware": "^4.0.2",
     "webnative": "0.25.2",
-    "webnative-filecoin": "^0.6.10"
+    "webnative-filecoin": "^0.6.11"
   },
   "devDependencies": {
     "@types/chai": "^4.2.14",
