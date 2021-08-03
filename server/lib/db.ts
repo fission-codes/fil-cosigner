@@ -105,12 +105,16 @@ export const watchTransaction = async (
      SET status = ${MessageStatus.Partial}, blockheight = ${waitResult.Height}
      WHERE userpubkey = '${userKey}'`
   )
-  await lotus.waitMsg(messageId, 200)
-  await client.query(
-    `UPDATE transactions 
-     SET status = ${MessageStatus.Verified}, blockheight = ${waitResult.Height}
-     WHERE userpubkey = '${userKey}'`
-  )
+  try {
+    await lotus.waitMsg(messageId, 200)
+    await client.query(
+      `UPDATE transactions 
+       SET status = ${MessageStatus.Verified}, blockheight = ${waitResult.Height}
+       WHERE userpubkey = '${userKey}'`
+    )
+  } catch (err) {
+    console.error(err)
+  }
 }
 
 export const getReceipt = async (messageId: CID): Promise<Receipt | null> => {
