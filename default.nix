@@ -1,6 +1,6 @@
+{ sources ? import ./nix/sources.nix, pkgs ? import sources.nixpkgs { } }:
+
 let
-  sources = import ./nix/sources.nix;
-  pkgs = import sources.nixpkgs { };
   yarn = pkgs.yarn.overrides { nodejs = pkgs.nodejs-16_x; };
 
   package = pkgs.lib.importJSON ./package.json;
