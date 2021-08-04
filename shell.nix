@@ -6,8 +6,8 @@ in pkgs.mkShell {
   buildInputs = with pkgs; [
     nodejs-16_x
     (yarn.override { nodejs = nodejs-16_x; })
-
+    yarn2nix
     # keep this line if you use bash
-    pkgs.bashInteractive
+    bashInteractive
   ];
 }
