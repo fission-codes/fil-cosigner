@@ -1,5 +1,8 @@
-![](https://raw.githubusercontent.com/fission-suite/kit/6a20e9af963dd000903b1c6e64f9fbb2102ba472/images/badge-solid-colored.svg)
-# Fission Filecoin Cosigner
+<div align="center">
+  <img src="https://github.com/fission-codes/kit/blob/main/images/logo-icon-coloured.png?raw=true" alt="Fission logo" width="100" />
+
+  <h1>Fission Filecoin Cosigner</h1>
+</div>
 
 BLS cosigning server for signing Filecoin transactions & forwarding them to a Lotus node.
 
