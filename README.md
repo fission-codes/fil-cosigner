@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://github.com/fission-codes/kit/blob/main/images/logo-icon-coloured.png?raw=true" width="100" />
+  <img src="https://github.com/fission-codes/kit/blob/main/images/logo-icon-coloured.png?raw=true" alt="Fission logo" width="100" />
 
   <h1>Fission Filecoin Cosigner</h1>
 </div>
